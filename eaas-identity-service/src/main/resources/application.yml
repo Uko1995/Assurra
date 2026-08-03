@@ -1,0 +1,168 @@
+server:
+  port: 8081
+                                                                                                                                                                                                            LSP
+
+
+spring:
+  application:
+    name: eaas-identity-
+  profiles:
+    active: dev
+
+  # Database Configuration
+  datasource:
+    url: jdbc:sqlserver://${MSSQL_URL:localhost:1433};databaseName=identity_db;trustServerCertificate=true;encrypt=true
+    username: ${MSSQL_USER:sa}
+    password: ${MSSQL_PASSWORD}
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLServerDialect
+        format_sql: true
+        jdbc:
+          batch_size: 20
+    open-in-view: false
+
+  # Flyway Configuration - Strict Schema Management
+  flyway:
+    enabled: true
+    locations: classpath:db/migration,classpath:db/repeatable
+    validate-on-migrate: true
+    out-of-order: false
+    clean-disabled: true
+    baseline-on-migrate: false
+    create-schemas: true
+    ignore-missing-migrations: false
+    ignore-ignored-migrations: false
+    ignore-future-migrations: false
+
+  # Redis Configuration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+
+  # RabbitMQ Configuration
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:eaas_user}
+    password: ${RABBITMQ_PASS:eaas_pass}
+    virtual-host: /
+    listener:
+      simple:
+        concurrency: 2
+        max-concurrency: 10
+        retry:
+          enabled: true
+          initial-interval: 1000ms
+          max-attempts: 3
+
+  # Mail Configuration
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    protocol: smtp
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+        debug: false
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:3600000}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
+
+# API Key Configuration
+api:
+  key:
+    prefix: "sk_live_"
+    length: 32
+
+# Security Configuration - Account Lockout & Brute-Force Protection
+security:
+  login:
+    max-failed-attempts: 5        # Max failed attempts before account lockout
+    lockout-minutes: 30           # Account lockout duration in minutes
+
+# Encryption Configuration for PII at Rest
+# WARNING: ENCRYPTION_MASTER_KEY must NEVER change once data has been encrypted with it.
+# Encrypted columns (bank_account_number, bvn, phone) become permanently unreadable on a
+# key change. Use a stable 64-char hex key (32 bytes) in .env; the dev placeholder value
+# works only as long as it is identical across ALL identity instances and restarts.
+encryption:
+  master-key: ${ENCRYPTION_MASTER_KEY}
+
+# Cloudinary Configuration for KYC Document Storage
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME}
+  api-key: ${CLOUDINARY_API_KEY}
+  api-secret: ${CLOUDINARY_API_SECRET}
+  secure: true
+
+# App Configuration
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}
+  email:
+    from: ${EMAIL_FROM:[EMAIL_REDACTED]}
+  # One-off PII backfill: set true to (re-)encrypt legacy plaintext columns at startup.
+  pii-backfill:
+    enabled: false
+
+# Logging
+logging:
+  level:
+    com.uko.eaas.identity: DEBUG
+    org.springframework.security: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+
+info:
+  app:
+    name: EaaS Identity Service
+    version: 1.0.0
+    description: Identity, Auth, KYC and Merchant Management

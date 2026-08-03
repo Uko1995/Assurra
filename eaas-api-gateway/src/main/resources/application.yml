@@ -1,0 +1,279 @@
+server:
+  port: 8080
+
+spring:
+  main:
+    web-application-type: reactive
+  application:
+    name: eaas-api-gateway
+  
+  cloud:
+    gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: 
+              - "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
+      
+      # HTTP client configuration
+      httpclient:
+        connect-timeout: 5000
+        response-timeout: 30s
+        pool:
+          type: elastic
+          max-connections: 1000
+          max-idle-time: 10s
+          max-life-time: 60s
+      
+      # Discovery locator (disabled for static routes)
+      discovery:
+        locator:
+          enabled: false
+
+  # Redis for rate limiting and caching
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2000ms
+      database: 0
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 2
+          max-wait: 1000ms
+        shutdown-timeout: 100ms
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:3600000}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
+
+# Gateway Internal Configuration
+gateway:
+  internal:
+    # Secret for signing internal requests between gateway and services
+    # MUST be the same across all services
+    signing-secret: ${GATEWAY_SIGNING_SECRET}
+  
+  # Rate limiting configuration
+  rate-limiting:
+    enabled: true
+    # Burst capacity per client
+    burst-capacity: 150
+    # Tokens replenished per second
+    replenish-rate: 10
+    # Strict rate limiting for public endpoints
+    strict-burst-capacity: 30
+    strict-replenish-rate: 2
+
+# Resilience4j Circuit Breaker Configuration
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        failure-rate-threshold: 50
+        slow-call-rate-threshold: 80
+        slow-call-duration-threshold: 2s
+        permitted-number-of-calls-in-half-open-state: 10
+        sliding-window-size: 100
+        minimum-number-of-calls: 10
+        wait-duration-in-open-state: 10s
+        automatic-transition-from-open-to-half-open-enabled: true
+    instances:
+      identityCircuitBreaker:
+        base-config: default
+        wait-duration-in-open-state: 5s
+      escrowCircuitBreaker:
+        base-config: default
+        wait-duration-in-open-state: 10s
+      paymentCircuitBreaker:
+        base-config: default
+        wait-duration-in-open-state: 15s
+      communicationCircuitBreaker:
+        base-config: default
+        wait-duration-in-open-state: 10s
+  
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 30s
+        cancel-running-future: true
+    instances:
+      identityCircuitBreaker:
+        timeout-duration: 5s
+      escrowCircuitBreaker:
+        timeout-duration: 10s
+      paymentCircuitBreaker:
+        timeout-duration: 30s
+      communicationCircuitBreaker:
+        timeout-duration: 10s
+
+# Logging
+logging:
+  level:
+    com.uko.eaas.gateway: DEBUG
+    org.springframework.cloud.gateway: INFO
+    org.springframework.data.redis: INFO
+    reactor.netty: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/gateway.log
+    max-size: 100MB
+    max-history: 30
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,gateway,metrics,ratelimiters,circuitbreakers
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when_authorized
+      probes:
+        enabled: true
+    metrics:
+      enabled: true
+    gateway:
+      enabled: true
+    ratelimiters:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    export:
+      prometheus:
+        enabled: true
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: EaaS API Gateway
+    version: 1.0.0
+    description: Escrow as a Service - API Gateway with Unified Authentication
+    features:
+      - JWT Authentication
+      - API Key Authentication
+      - Rate Limiting
+      - Circuit Breaker
+      - Request Signing
+
+---
+# Docker profile
+spring:
+  config:
+    activate:
+      on-profile: docker
+  
+  cloud:
+    gateway:
+      routes:
+        - id: identity-service-admin
+          uri: http://eaas-identity-service:8081
+          predicates:
+            - Path=/api/v1/merchants/**, /api/v1/admin/kyc/**, /api/v1/admin/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 150
+                key-resolver: "#{@userKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: identityCircuitBreaker
+                fallbackUri: forward:/fallback/identity
+        
+        - id: identity-service-public
+          uri: http://eaas-identity-service:8081
+          predicates:
+            - Path=/api/v1/auth/**, /api/v1/health
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 2
+                redis-rate-limiter.burstCapacity: 30
+                key-resolver: "#{@ipKeyResolver}"
+        
+        - id: escrow-service
+          uri: http://eaas-escrow-service:8082
+          predicates:
+            - Path=/api/v1/escrow/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 150
+                key-resolver: "#{@userKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: escrowCircuitBreaker
+                fallbackUri: forward:/fallback/escrow
+        
+        - id: payment-service
+          uri: http://eaas-payment-service:8083
+          predicates:
+            - Path=/api/v1/payments/**, /api/v1/payouts/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 150
+                key-resolver: "#{@userKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: paymentCircuitBreaker
+                fallbackUri: forward:/fallback/payment
+        
+        - id: payment-webhooks
+          uri: http://eaas-payment-service:8083
+          predicates:
+            - Path=/api/v1/webhooks/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 2
+                redis-rate-limiter.burstCapacity: 30
+                key-resolver: "#{@ipKeyResolver}"
+        
+        - id: communication-service
+          uri: http://eaas-communication-service:8084
+          predicates:
+            - Path=/api/v1/notifications/**, /api/v1/disputes/**, /api/v1/admin/disputes/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 150
+                key-resolver: "#{@userKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: communicationCircuitBreaker
+                fallbackUri: forward:/fallback/communication
+  
+  data:
+    redis:
+      host: redis
+      port: 6379
+
+# Logging for Docker
+logging:
+  level:
+    com.uko.eaas.gateway: INFO
+    org.springframework.cloud.gateway: WARN
+    reactor.netty: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"

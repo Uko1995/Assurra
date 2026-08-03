@@ -1,0 +1,117 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: eaas-payment-service
+
+  # Database Configuration
+  datasource:
+    url: jdbc:sqlserver://${MSSQL_URL:localhost:1433};databaseName=payment_db;trustServerCertificate=true;encrypt=true
+    username: ${MSSQL_USER:sa}
+    password: ${MSSQL_PASSWORD}
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.SQLServerDialect
+        format_sql: true
+    open-in-view: false
+
+  # Flyway Configuration - Strict Schema Management
+  flyway:
+    enabled: true
+    locations: classpath:db/migration,classpath:db/repeatable
+    validate-on-migrate: true
+    out-of-order: false
+    clean-disabled: true
+    baseline-on-migrate: false
+    create-schemas: true
+    ignore-missing-migrations: false
+    ignore-ignored-migrations: false
+    ignore-future-migrations: false
+
+  # RabbitMQ Configuration
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USER:eaas_user}
+    password: ${RABBITMQ_PASS:eaas_pass}
+    virtual-host: /
+    listener:
+      simple:
+        concurrency: 2
+        max-concurrency: 10
+        retry:
+          enabled: true
+          initial-interval: 1000ms
+          max-attempts: 3
+
+# Gateway Configuration (must match gateway's signing secret)
+gateway:
+  internal:
+    signing-secret: ${GATEWAY_SIGNING_SECRET}
+
+# Identity Service (internal service-to-service calls)
+identity:
+  service:
+    url: ${IDENTITY_SERVICE_URL:http://localhost:8081}
+
+# Escrow Service (internal service-to-service calls)
+escrow:
+  service:
+    url: ${ESCROW_SERVICE_URL:http://localhost:8082}
+
+# Interswitch Configuration
+interswitch:
+  api:
+    url: ${INTERSWITCH_API_URL:https://sandbox.interswitchng.com}
+    key: ${INTERSWITCH_API_KEY:}
+    secret: ${INTERSWITCH_API_SECRET:}
+  webhook:
+    secret: ${INTERSWITCH_WEBHOOK_SECRET:}
+  mock:
+    enabled: ${INTERSWITCH_MOCK:true}
+
+# Payout Configuration
+payout:
+  retry:
+    attempts: 6
+    initial-delay-minutes: 1
+    max-delay-hours: 24
+
+# Logging
+logging:
+  level:
+    com.uko.eaas.payment: DEBUG
+    org.springframework.web.reactive: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+
+info:
+  app:
+    name: EaaS Payment Service
+    version: 1.0.0
+    description: Payment Processing and Interswitch Integration

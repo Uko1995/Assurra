@@ -1,0 +1,70 @@
+sequenceDiagram
+    autonumber
+
+    participant C as Customer
+    participant AG as API Gateway
+    participant ES as Escrow Service
+    participant DS as Dispute Service
+    participant MQ as RabbitMQ
+    participant NS as Notification Service
+    participant M as Merchant
+    participant ADM as Admin
+    participant PO as Payout Service
+
+    Note over C,PO: ── DISPUTE FLOW ──
+
+    %% Customer raises dispute
+    C->>AG: POST /disputes { escrowRef, reason, description }
+    AG->>ES: Route (JWT validated)
+    ES->>ES: Validate status=DELIVERED & within window
+    ES->>ES: Update status → DISPUTED
+    ES->>DS: Create dispute record (status=OPEN)
+    DS->>DS: Set response_deadline = now + 24hrs
+    ES->>MQ: Publish escrow.disputed
+    ES->>MQ: Publish audit.event (diff via DiffAuditHelper)
+
+    MQ->>NS: escrow.disputed event
+    NS->>M: Email+SMS: "Dispute raised. Respond within 24hrs"
+    NS->>ADM: Alert: "New dispute — TXN-YYYY-XXXXXX"
+    NS->>C: Email: "Dispute received. Review within 48hrs"
+
+    %% Customer uploads evidence
+    C->>AG: POST /disputes/{id}/evidence (file upload)
+    AG->>DS: Route request
+    DS->>DS: Validate file type & size (< 10MB)
+    DS->>DS: Upload to Cloudinary, save evidence record
+    DS-->>C: 201 Evidence uploaded
+
+    %% Merchant responds
+    M->>AG: POST /disputes/{id}/merchant-response
+    AG->>DS: Route (API key validated)
+    DS->>DS: Save merchant response, mark merchant_responded=true
+    DS->>MQ: Publish dispute.merchant_responded
+    MQ->>NS: Notify customer + admin
+
+    %% Merchant uploads counter-evidence
+    M->>AG: POST /disputes/{id}/evidence (tracking proof, photos)
+    AG->>DS: Route request
+    DS->>DS: Upload to Cloudinary, save evidence record
+    DS-->>M: 201 Evidence uploaded
+
+    %% Admin reviews & resolves
+    ADM->>AG: PUT /admin/disputes/{id}/resolve
+    Note right of ADM: resolution=RESOLVED_CUSTOMER<br/>resolutionNote="Item not as described"
+    AG->>DS: Route (ADMIN role required)
+    DS->>DS: Update dispute status → RESOLVED_CUSTOMER
+    DS->>ES: Update escrow status → RESOLVED_CUSTOMER
+    DS->>MQ: Publish escrow.resolved.customer
+    DS->>MQ: Publish audit.event (diff via DiffAuditHelper)
+
+    %% Refund to customer
+    MQ->>PO: escrow.resolved.customer event
+    PO->>PO: Initiate refund via Interswitch Refund API
+    PO->>PO: Save payout record (type=CUSTOMER_REFUND)
+    PO->>MQ: Publish payout.refunded
+    MQ->>NS: payout.refunded event
+
+    NS->>C: Email: "Dispute resolved in your favour. Refund of ₦862,750 initiated."
+    NS->>M: Email: "Dispute resolved in customer's favour. Ref: TXN-YYYY-XXXXXX"
+
+    Note over C,PO: ── END: Customer refunded ──

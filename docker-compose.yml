@@ -1,0 +1,439 @@
+version: '3.8'
+
+# =============================================================================
+# EaaS Docker Compose - MSSQL 2022 Express Configuration
+# =============================================================================
+# 
+# SECURITY NOTES:
+# - Only the API Gateway (port 8080) is exposed to the outside world
+# - All internal services are accessible only through the Docker network
+# - Services validate requests using HMAC signatures from the gateway
+# - Direct access to internal services is blocked by security filters
+#
+# DATABASE: Microsoft SQL Server 2022 Express
+# Each service has its own database on a dedicated MSSQL instance
+#
+# =============================================================================
+
+services:
+  # ============================================
+  # API GATEWAY - ONLY EXPOSED SERVICE
+  # ============================================
+  api-gateway:
+    build:
+      context: ./eaas-api-gateway
+      dockerfile: Dockerfile
+    container_name: eaas-api-gateway
+    ports:
+      - "8080:8080"  # ONLY port exposed to external traffic
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - JWT_SECRET=${JWT_SECRET:E+WWg0nB29ulc4quOoHcbsxuW0Nq3F7xZ2iutojiKUo=}
+      - JWT_EXPIRATION=3600000
+      - JWT_REFRESH_EXPIRATION=604800000
+      - GATEWAY_SIGNING_SECRET=${GATEWAY_SIGNING_SECRET:nVf3pYEwS8/YV25CjAMH3oB7dlARoqonQssrxpND++U=}
+      # Rate limiting
+      - RATE_LIMIT_REPLENISH_RATE=10
+      - RATE_LIMIT_BURST_CAPACITY=150
+    depends_on:
+      redis:
+        condition: service_healthy
+      eaas-identity-service:
+        condition: service_healthy
+      eaas-escrow-service:
+        condition: service_healthy
+      eaas-payment-service:
+        condition: service_healthy
+      eaas-communication-service:
+        condition: service_healthy
+    networks:
+      - eaas-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================
+  # IDENTITY & MERCHANT SERVICE (Port 8081)
+  # NOT EXPOSED - Internal only
+  # ============================================
+  eaas-identity-service:
+    build:
+      context: ./eaas-identity-service
+      dockerfile: Dockerfile
+    container_name: eaas-identity-service
+    # NO ports exposed - only accessible via gateway through internal network
+    expose:
+      - "8081"  # Only exposed to other services, not to host
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=8081
+      # MSSQL Database Configuration
+      - MSSQL_URL=mssql-identity:1433
+      - MSSQL_USER=sa
+      - MSSQL_PASSWORD=${MSSQL_PASSWORD:-YourStrong@Passw0rd}
+      # Redis
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      # RabbitMQ
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=eaas_user
+      - RABBITMQ_PASS=eaas_pass
+      # Security
+      - JWT_SECRET=${JWT_SECRET:-eaas-secret-key-change-in-production-min-32-chars}
+      - JWT_EXPIRATION=3600000
+      - JWT_REFRESH_EXPIRATION=604800000
+      - GATEWAY_SIGNING_SECRET=${GATEWAY_SIGNING_SECRET:nVf3pYEwS8/YV25CjAMH3oB7dlARoqonQssrxpND++U=}
+      # Mail
+      - MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
+      - MAIL_PORT=${MAIL_PORT:-587}
+      - MAIL_USERNAME=${MAIL_USERNAME:-}
+      - MAIL_PASSWORD=${MAIL_PASSWORD:-}
+    depends_on:
+      mssql-identity:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - eaas-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================
+  # ESCROW & WORKFLOW SERVICE (Port 8082)
+  # NOT EXPOSED - Internal only
+  # ============================================
+  eaas-escrow-service:
+    build:
+      context: ./eaas-escrow-service
+      dockerfile: Dockerfile
+    container_name: eaas-escrow-service
+    # NO ports exposed - only accessible via gateway through internal network
+    expose:
+      - "8082"  # Only exposed to other services, not to host
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=8082
+      # MSSQL Database Configuration
+      - MSSQL_URL=mssql-escrow:1433
+      - MSSQL_USER=sa
+      - MSSQL_PASSWORD=${MSSQL_PASSWORD:-YourStrong@Passw0rd}
+      # Redis
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      # RabbitMQ
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=eaas_user
+      - RABBITMQ_PASS=eaas_pass
+      # Security
+      - GATEWAY_SIGNING_SECRET=${GATEWAY_SIGNING_SECRET:nVf3pYEwS8/YV25CjAMH3oB7dlARoqonQssrxpND++U=}
+      # Escrow Configuration
+      - ESCROW_FEE_PERCENTAGE=1.5
+      - ESCROW_FEE_MIN=500
+      - ESCROW_FEE_MAX=50000
+      - AUTO_RELEASE_INTERVAL_MINUTES=5
+      - CONFIRMATION_WINDOW_HOURS=72
+    depends_on:
+      mssql-escrow:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - eaas-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================
+  # PAYMENT ENGINE SERVICE (Port 8083)
+  # NOT EXPOSED - Internal only
+  # ============================================
+  eaas-payment-service:
+    build:
+      context: ./eaas-payment-service
+      dockerfile: Dockerfile
+    container_name: eaas-payment-service
+    # NO ports exposed - only accessible via gateway through internal network
+    expose:
+      - "8083"  # Only exposed to other services, not to host
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=8083
+      # MSSQL Database Configuration
+      - MSSQL_URL=mssql-payment:1433
+      - MSSQL_USER=sa
+      - MSSQL_PASSWORD=${MSSQL_PASSWORD:-YourStrong@Passw0rd}
+      # RabbitMQ
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=eaas_user
+      - RABBITMQ_PASS=eaas_pass
+      # Security
+      - GATEWAY_SIGNING_SECRET=${GATEWAY_SIGNING_SECRET:nVf3pYEwS8/YV25CjAMH3oB7dlARoqonQssrxpND++U=}
+      # Interswitch Configuration
+      - INTERSWITCH_API_URL=${INTERSWITCH_API_URL:-https://sandbox.interswitchng.com}
+      - INTERSWITCH_API_KEY=${INTERSWITCH_API_KEY:-your-interswitch-key}
+      - INTERSWITCH_API_SECRET=${INTERSWITCH_API_SECRET:-your-interswitch-secret}
+      - INTERSWITCH_WEBHOOK_SECRET=${INTERSWITCH_WEBHOOK_SECRET:-your-webhook-secret}
+      # Payout Configuration
+      - PAYOUT_RETRY_ATTEMPTS=6
+      - PAYOUT_INITIAL_RETRY_DELAY_MINUTES=1
+    depends_on:
+      mssql-payment:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - eaas-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8083/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================
+  # COMMUNICATION & DISPUTE SERVICE (Port 8084)
+  # NOT EXPOSED - Internal only
+  # ============================================
+  eaas-communication-service:
+    build:
+      context: ./eaas-communication-service
+      dockerfile: Dockerfile
+    container_name: eaas-communication-service
+    # NO ports exposed - only accessible via gateway through internal network
+    expose:
+      - "8084"  # Only exposed to other services, not to host
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=8084
+      # MSSQL Database Configuration
+      - MSSQL_URL=mssql-communication:1433
+      - MSSQL_USER=sa
+      - MSSQL_PASSWORD=${MSSQL_PASSWORD:-YourStrong@Passw0rd}
+      # RabbitMQ
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=eaas_user
+      - RABBITMQ_PASS=eaas_pass
+      # Security
+      - GATEWAY_SIGNING_SECRET=${GATEWAY_SIGNING_SECRET:nVf3pYEwS8/YV25CjAMH3oB7dlARoqonQssrxpND++U=}
+      # SendGrid
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY:-your-sendgrid-key}
+      # Termii SMS
+      - TERMII_API_KEY=${TERMII_API_KEY:-your-termii-key}
+      - TERMII_SENDER_ID=${TERMII_SENDER_ID:-EaaS}
+      # AWS S3
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET:-eaas-evidence}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-your-aws-key}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-your-aws-secret}
+      - AWS_REGION=${AWS_REGION:-af-south-1}
+      # File Upload
+      - MAX_FILE_SIZE_MB=10
+      - EVIDENCE_EXPIRY_DAYS=90
+    depends_on:
+      mssql-communication:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - eaas-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ============================================
+  # INFRASTRUCTURE - MSSQL DATABASES (SQL Server 2022 Express)
+  # NOT EXPOSED - Internal only
+  # ============================================
+  
+  # Identity Service Database
+  mssql-identity:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: eaas-mssql-identity
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${MSSQL_PASSWORD:-YourStrong@Passw0rd}
+      - MSSQL_PID=Express
+      - MSSQL_DATABASE=identity_db
+    # NO ports exposed - only accessible via internal network
+    expose:
+      - "1433"
+    volumes:
+      - mssql_identity_data:/var/opt/mssql/data
+      - ./init-scripts/mssql/identity:/docker-entrypoint-initdb.d:ro
+    networks:
+      - eaas-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \"$SA_PASSWORD\" -Q 'SELECT 1' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  # Escrow Service Database
+  mssql-escrow:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: eaas-mssql-escrow
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${MSSQL_PASSWORD:-YourStrong@Passw0rd}
+      - MSSQL_PID=Express
+      - MSSQL_DATABASE=escrow_db
+    # NO ports exposed - only accessible via internal network
+    expose:
+      - "1433"
+    volumes:
+      - mssql_escrow_data:/var/opt/mssql/data
+      - ./init-scripts/mssql/escrow:/docker-entrypoint-initdb.d:ro
+    networks:
+      - eaas-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \"$SA_PASSWORD\" -Q 'SELECT 1' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  # Payment Service Database
+  mssql-payment:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: eaas-mssql-payment
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${MSSQL_PASSWORD:-YourStrong@Passw0rd}
+      - MSSQL_PID=Express
+      - MSSQL_DATABASE=payment_db
+    # NO ports exposed - only accessible via internal network
+    expose:
+      - "1433"
+    volumes:
+      - mssql_payment_data:/var/opt/mssql/data
+      - ./init-scripts/mssql/payment:/docker-entrypoint-initdb.d:ro
+    networks:
+      - eaas-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \"$SA_PASSWORD\" -Q 'SELECT 1' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  # Communication Service Database
+  mssql-communication:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: eaas-mssql-communication
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${MSSQL_PASSWORD:-YourStrong@Passw0rd}
+      - MSSQL_PID=Express
+      - MSSQL_DATABASE=communication_db
+    # NO ports exposed - only accessible via internal network
+    expose:
+      - "1433"
+    volumes:
+      - mssql_communication_data:/var/opt/mssql/data
+      - ./init-scripts/mssql/communication:/docker-entrypoint-initdb.d:ro
+    networks:
+      - eaas-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P \"$SA_PASSWORD\" -Q 'SELECT 1' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+
+  # ============================================
+  # INFRASTRUCTURE - REDIS
+  # NOT EXPOSED - Internal only
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: eaas-redis
+    # NO ports exposed - only accessible via internal network
+    expose:
+      - "6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - eaas-network
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # ============================================
+  # INFRASTRUCTURE - RABBITMQ
+  # NOT EXPOSED - Internal only
+  # ============================================
+  rabbitmq:
+    image: rabbitmq:4.31-management-alpine
+    container_name: eaas-rabbitmq
+    hostname: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+      RABBITMQ_ERLANG_COOKIE: eaas_cookie_secret
+    # NO ports exposed - only accessible via internal network
+    expose:
+      - "5672"
+      - "15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+    networks:
+      - eaas-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+# ============================================
+# VOLUMES
+# ============================================
+volumes:
+  mssql_identity_data:
+  mssql_escrow_data:
+  mssql_payment_data:
+  mssql_communication_data:
+  redis_data:
+  rabbitmq_data:
+
+# ============================================
+# NETWORKS
+# ============================================
+networks:
+  eaas-network:
+    driver: bridge
+    # Internal network - no external access except through gateway
+    internal: false

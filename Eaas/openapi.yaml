@@ -1,0 +1,1423 @@
+openapi: 3.0.3
+info:
+  title: EaaS — Escrow as a Service API
+  description: |
+    API-first, Africa-native escrow platform. Enables secure transactions
+    between buyers and sellers by holding funds in escrow until delivery is confirmed.
+    
+    ## Authentication
+    - **Customer/Admin:** Bearer JWT token via `Authorization: Bearer <token>`
+    - **Merchant API:** API Key via `X-API-Key: sk_live_xxxx` header
+    - **Webhooks from PSP:** Verified via `X-Interswitch-Signature` HMAC header
+    
+    ## Idempotency
+    All POST requests that create resources must include `X-Idempotency-Key` header.
+    
+    ## Rate Limiting
+    - 100 requests/minute per API key
+    - Rate limit headers returned: `X-RateLimit-Limit`, `X-RateLimit-Remaining`
+    
+  version: 1.0.0
+  contact:
+    name: EaaS Developer Support
+    email: developers@eaas.africa
+
+servers:
+  - url: https://api.eaas.africa/api/v1
+    description: Production
+  - url: https://sandbox.eaas.africa/api/v1
+    description: Sandbox
+
+tags:
+  - name: Auth
+    description: Authentication and registration
+  - name: Merchants
+    description: Merchant onboarding and management
+  - name: Escrow
+    description: Escrow transaction lifecycle
+  - name: Customer Escrow Operations
+    description: Customer actions on escrow transactions
+  - name: Disputes
+    description: Dispute management
+  - name: Payouts
+    description: Payout and refund tracking
+  - name: Admin
+    description: Admin operations (requires ADMIN role)
+  - name: Payment Webhook
+    description: Interswitch payment callback webhooks
+  - name: Customer Payment Operations
+    description: Customer payment queries
+  - name: AML / Compliance
+    description: Anti-money laundering and compliance operations
+  - name: User Data Rights
+    description: GDPR / NDPR data subject rights
+  - name: Privacy & Terms
+    description: Privacy policy and terms of service
+  - name: Webhooks
+    description: Interswitch webhook endpoints
+
+paths:
+
+  # ─── AUTH ─────────────────────────────────────────────────
+  /auth/register/customer:
+    post:
+      tags: [Auth]
+      summary: Register a new customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerRegisterRequest'
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /auth/register/merchant:
+    post:
+      tags: [Auth]
+      summary: Register a new merchant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MerchantRegisterRequest'
+      responses:
+        '201':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login and receive JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              example:
+                status: "success"
+                data:
+                  accessToken: "eyJhbGci..."
+                  refreshToken: "eyJhbGci..."
+                  expiresIn: 3600
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ─── MERCHANTS ─────────────────────────────────────────────
+  /merchants/kyc:
+    post:
+      tags: [Merchants]
+      summary: Submit KYC business details
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KycSubmitRequest'
+      responses:
+        '200':
+          description: KYC submitted successfully
+
+  /merchants/kyc/documents:
+    post:
+      tags: [Merchants]
+      summary: Upload KYC document (CAC, utility bill, government ID)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                documentType:
+                  type: string
+                  enum: [CAC_CERTIFICATE, UTILITY_BILL, GOVERNMENT_ID, BANK_STATEMENT]
+      responses:
+        '200':
+          description: Document uploaded successfully
+
+  /merchants/api-key/regenerate:
+    post:
+      tags: [Merchants]
+      summary: Regenerate API key (invalidates old key immediately)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: New API key generated
+          content:
+            application/json:
+              schema:
+                type: string
+
+
+  /merchants/webhook:
+    put:
+      tags: [Merchants]
+      summary: Configure webhook URL
+      security:
+        - apiKeyAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                webhookUrl:
+                  type: string
+                  example: "https://mystore.com/webhooks/eaas"
+      responses:
+        '200':
+          description: Webhook configured
+
+  # ─── ESCROW ────────────────────────────────────────────────
+  /escrow:
+    post:
+      tags: [Escrow]
+      summary: Create a new escrow transaction
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - in: header
+          name: X-Idempotency-Key
+          required: true
+          schema:
+            type: string
+          description: Unique key to prevent duplicate transactions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEscrowRequest'
+            example:
+              merchantId: "merchant-uuid"
+              productDescription: "Samsung Galaxy S24 Ultra 256GB — Phantom Black"
+              productQuantity: 1
+              amount: 850000.00
+              currency: "NGN"
+              agreedDeliveryDays: 5
+      responses:
+        '201':
+          description: Escrow created
+          content:
+            application/json:
+              example:
+                status: "success"
+                data:
+                  reference: "TXN-2024-A3F9K2"
+                  amount: 850000.00
+                  escrowFee: 12750.00
+                  merchantAmount: 837250.00
+                  currency: "NGN"
+                  paymentLink: "https://paystack.com/pay/TXN-2024-A3F9K2"
+                  status: "INITIATED"
+                  expiresAt: "2024-01-12T12:00:00Z"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    get:
+      tags: [Escrow]
+      summary: List my escrow transactions (paginated)
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [INITIATED, FUNDED, SHIPPED, DELIVERED, CONFIRMED, DISPUTED, RELEASED, REFUNDED]
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 20
+        - in: query
+          name: fromDate
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: toDate
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Paginated list of escrow transactions
+          content:
+            application/json:
+              example:
+                status: "success"
+                data:
+                  content: []
+                  totalElements: 150
+                  totalPages: 8
+                  page: 0
+                  size: 20
+
+  /escrow/{reference}:
+    get:
+      tags: [Escrow]
+      summary: Get escrow transaction by reference
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      parameters:
+        - in: path
+          name: reference
+          required: true
+          schema:
+            type: string
+          example: "TXN-2024-A3F9K2"
+      responses:
+        '200':
+          description: Escrow transaction details
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /webhooks/interswitch/payments:
+    post:
+      tags: [Payment Webhook]
+      summary: Interswitch payment callback
+      description: |
+        Called by Interswitch when payment status changes.
+        **Must verify X-Interswitch-Signature header before processing.**
+      parameters:
+        - in: header
+          name: X-Interswitch-Signature
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentWebhookPayload'
+      responses:
+        '200':
+          description: Webhook processed
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /escrow/{reference}/ship:
+    post:
+      tags: [Escrow]
+      summary: Merchant submits tracking number (marks as SHIPPED)
+      security:
+        - apiKeyAuth: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: reference
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [trackingNumber, logisticsProvider]
+              properties:
+                trackingNumber:
+                  type: string
+                  example: "GIG-2024-XY9182"
+                logisticsProvider:
+                  type: string
+                  example: "GIG Logistics"
+                estimatedDeliveryDate:
+                  type: string
+                  format: date
+                  example: "2024-01-14"
+      responses:
+        '200':
+          description: Escrow marked as SHIPPED
+          content:
+            application/json:
+              example:
+                status: "success"
+                data:
+                  reference: "TXN-2024-A3F9K2"
+                  status: "SHIPPED"
+                  trackingNumber: "GIG-2024-XY9182"
+                  shippedAt: "2024-01-12T09:30:00Z"
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /escrow/{reference}/deliver:
+    post:
+      tags: [Escrow]
+      summary: Mark escrow as DELIVERED (starts 72hr confirmation window)
+      security:
+        - apiKeyAuth: []
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: reference
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Escrow marked as DELIVERED
+          content:
+            application/json:
+              example:
+                status: "success"
+                data:
+                  reference: "TXN-2024-A3F9K2"
+                  status: "DELIVERED"
+                  deliveredAt: "2024-01-14T14:00:00Z"
+                  confirmationDeadline: "2024-01-17T14:00:00Z"
+
+  /escrow/{reference}/confirm:
+    post:
+      tags: [Escrow]
+      summary: Customer confirms receipt — triggers payout to merchant
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: reference
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Delivery confirmed — payout triggered
+          content:
+            application/json:
+              example:
+                status: "success"
+                message: "Delivery confirmed. Merchant will receive payment within 24 hours."
+                data:
+                  reference: "TXN-2024-A3F9K2"
+                  status: "CONFIRMED"
+                  confirmedAt: "2024-01-15T10:00:00Z"
+
+  /escrow/{reference}/release:
+    post:
+      tags: [Customer Escrow Operations]
+      summary: Customer confirms delivery, releases escrow
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: reference
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentReferenceDTO'
+      responses:
+        '200':
+          description: Escrow released
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /disputes:
+    post:
+      tags: [Disputes]
+      summary: Create a dispute
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDisputeRequest'
+      responses:
+        '201':
+          description: Dispute created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /escrow/{reference}/cancel:
+    post:
+      tags: [Customer Escrow Operations]
+      summary: Customer cancels escrow
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: reference
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Escrow cancelled
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Cannot cancel — escrow already funded or beyond
+
+  # ─── DISPUTES ──────────────────────────────────────────────
+  /disputes/{id}:
+    get:
+      tags: [Disputes]
+      summary: Get dispute details
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Dispute details
+
+  /disputes/{id}/evidence:
+    post:
+      tags: [Disputes]
+      summary: Upload evidence for a dispute
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Max 10MB. Accepted types — image, video, PDF.
+                description:
+                  type: string
+      responses:
+        '201':
+          description: Evidence uploaded
+        '413':
+          description: File exceeds 10MB limit
+        '400':
+          description: Unsupported file type
+
+  /disputes/{id}/merchant-response:
+    post:
+      tags: [Disputes]
+      summary: Merchant submits response to dispute
+      security:
+        - apiKeyAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                response:
+                  type: string
+                  minLength: 20
+      responses:
+        '200':
+          description: Response submitted
+
+  # ─── PAYOUTS ───────────────────────────────────────────────
+  /payouts:
+    get:
+      tags: [Payouts]
+      summary: List my payouts
+      security:
+        - bearerAuth: []
+        - apiKeyAuth: []
+      responses:
+        '200':
+          description: Payout list
+
+  /payouts/{id}:
+    get:
+      tags: [Payouts]
+      summary: Get payout details
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payout details
+
+  # ─── ADMIN ─────────────────────────────────────────────────
+  /admin/escrows:
+    get:
+      tags: [Admin]
+      summary: List all escrow transactions (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: merchantId
+          schema:
+            type: string
+        - in: query
+          name: fromDate
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: toDate
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: minAmount
+          schema:
+            type: number
+        - in: query
+          name: maxAmount
+          schema:
+            type: number
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: Paginated list
+
+  /admin/disputes:
+    get:
+      tags: [Admin]
+      summary: List all disputes (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [OPEN, UNDER_REVIEW, RESOLVED_MERCHANT, RESOLVED_CUSTOMER]
+      responses:
+        '200':
+          description: Dispute list
+
+  /admin/disputes/{id}/resolve:
+    put:
+      tags: [Admin]
+      summary: Resolve a dispute
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [resolution, resolutionNote]
+              properties:
+                resolution:
+                  type: string
+                  enum: [RESOLVED_MERCHANT, RESOLVED_CUSTOMER]
+                resolutionNote:
+                  type: string
+                  minLength: 10
+      responses:
+        '200':
+          description: Dispute resolved — payout or refund triggered
+
+  /admin/kyc/{merchantId}/approve:
+    put:
+      tags: [Admin]
+      summary: Approve merchant KYC
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: merchantId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: KYC approved — API key generated and emailed
+
+  /admin/kyc/{merchantId}/reject:
+    put:
+      tags: [Admin]
+      summary: Reject merchant KYC
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: merchantId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: KYC rejected — merchant notified
+
+  /admin/payouts:
+    get:
+      tags: [Admin]
+      summary: View all payouts and their status
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [PENDING, PROCESSING, SUCCESS, FAILED]
+      responses:
+        '200':
+          description: Payout queue
+
+  /admin/fee-configurations:
+    get:
+      tags: [Admin]
+      summary: List all fee configurations
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Fee configuration list
+    post:
+      tags: [Admin]
+      summary: Create a fee configuration
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFeeConfigRequest'
+      responses:
+        '201':
+          description: Fee configuration created
+
+  /admin/fee-configurations/{id}:
+    put:
+      tags: [Admin]
+      summary: Update a fee configuration
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFeeConfigRequest'
+      responses:
+        '200':
+          description: Fee configuration updated
+    delete:
+      tags: [Admin]
+      summary: Deactivate a fee configuration
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Fee configuration deactivated
+
+  /payments/reference/{reference}:
+    get:
+      tags: [Customer Payment Operations]
+      summary: Get payment by reference
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: reference
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment details
+
+  /admin/aml-alerts:
+    get:
+      tags: [AML / Compliance]
+      summary: Admin list AML alerts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Paginated list of AML alerts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AmlAlert'
+                  totalElements:
+                    type: integer
+                  totalPages:
+                    type: integer
+                  page:
+                    type: integer
+                  size:
+                    type: integer
+
+  /admin/aml-alerts/{id}/review:
+    put:
+      tags: [AML / Compliance]
+      summary: Review alert
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: notes
+          schema:
+            type: string
+        - in: header
+          name: X-User-Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Alert reviewed
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/aml-alerts/{id}/resolve:
+    put:
+      tags: [AML / Compliance]
+      summary: Resolve alert
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: resolution
+          schema:
+            type: string
+        - in: query
+          name: notes
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Alert resolved
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/me/data-export:
+    get:
+      tags: [User Data Rights]
+      summary: Export my data
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User data export
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /users/me:
+    delete:
+      tags: [User Data Rights]
+      summary: Delete my account (anonymize)
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Account scheduled for deletion
+
+  /users/me/marketing-consent:
+    put:
+      tags: [User Data Rights]
+      summary: Update marketing consent
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: consent
+          required: true
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Marketing consent updated
+
+  /privacy-policy:
+    get:
+      tags: [Privacy & Terms]
+      summary: Get latest privacy policy
+      responses:
+        '200':
+          description: Latest privacy policy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrivacyPolicy'
+
+  /terms-of-service:
+    get:
+      tags: [Privacy & Terms]
+      summary: Get latest terms of service
+      responses:
+        '200':
+          description: Latest terms of service
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TermsOfService'
+
+# ─── COMPONENTS ──────────────────────────────────────────────
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  responses:
+    BadRequest:
+      description: Validation error
+      content:
+        application/json:
+          example:
+            status: "error"
+            message: "Validation failed"
+            errors:
+              - field: "amount"
+                message: "Amount must be greater than zero"
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          example:
+            status: "error"
+            message: "Unauthorized"
+    Forbidden:
+      description: Insufficient permissions
+      content:
+        application/json:
+          example:
+            status: "error"
+            message: "You do not have permission to perform this action"
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          example:
+            status: "error"
+            message: "Merchant not found"
+    Conflict:
+      description: State conflict
+      content:
+        application/json:
+          example:
+            status: "error"
+            message: "Cannot transition from CONFIRMED to DISPUTED"
+
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [success, error]
+        message:
+          type: string
+        data:
+          type: object
+
+    RegisterRequest:
+      type: object
+      required: [fullName, email, phone, password, role]
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        password:
+          type: string
+          minLength: 8
+        role:
+          type: string
+          enum: [CUSTOMER, MERCHANT]
+        businessName:
+          type: string
+          description: Required if role=MERCHANT
+        bankAccountNumber:
+          type: string
+          description: Required if role=MERCHANT
+        bankCode:
+          type: string
+          description: Required if role=MERCHANT
+        bankName:
+          type: string
+          description: Required if role=MERCHANT
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    CustomerRegisterRequest:
+      type: object
+      required: [fullName, email, phone, password, termsAccepted, dataProcessingConsent]
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        password:
+          type: string
+          minLength: 8
+        termsAccepted:
+          type: boolean
+        dataProcessingConsent:
+          type: boolean
+        marketingConsent:
+          type: boolean
+
+    MerchantRegisterRequest:
+      type: object
+      required: [fullName, email, phone, password, businessName, businessRegNumber, bankAccountNumber, bankCode, bankName, bvn, termsAccepted, dataProcessingConsent]
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        password:
+          type: string
+          minLength: 8
+        businessName:
+          type: string
+        businessType:
+          type: string
+        businessRegNumber:
+          type: string
+        bankAccountNumber:
+          type: string
+        bankCode:
+          type: string
+        bankName:
+          type: string
+        bvn:
+          type: string
+          pattern: "^\\d{11}$"
+        termsAccepted:
+          type: boolean
+        dataProcessingConsent:
+          type: boolean
+        marketingConsent:
+          type: boolean
+
+    KycSubmitRequest:
+      type: object
+      required: [businessName, bankAccountNumber, bankCode, bankName, bvn]
+      properties:
+        businessName:
+          type: string
+        businessType:
+          type: string
+        businessRegNumber:
+          type: string
+        bankAccountNumber:
+          type: string
+          pattern: "^\\d{10}$"
+        bankCode:
+          type: string
+        bankName:
+          type: string
+        bvn:
+          type: string
+          pattern: "^\\d{11}$"
+
+    CreateEscrowRequest:
+      type: object
+      required: [merchantId, productDescription, amount]
+      properties:
+        merchantId:
+          type: string
+          format: uuid
+        productDescription:
+          type: string
+          maxLength: 1000
+        productQuantity:
+          type: integer
+          minimum: 1
+          default: 1
+        amount:
+          type: number
+          minimum: 100
+          description: Minimum escrow amount is ₦100
+        agreedDeliveryDays:
+          type: integer
+          minimum: 1
+          maximum: 30
+          default: 7
+
+    CreateDisputeRequest:
+      type: object
+      required: [escrowReference, customerId, merchantId, raisedBy, reason, description, amountDisputed]
+      properties:
+        escrowReference:
+          type: string
+        customerId:
+          type: string
+          format: uuid
+        merchantId:
+          type: string
+          format: uuid
+        raisedBy:
+          type: string
+          format: uuid
+        reason:
+          type: string
+        description:
+          type: string
+        desiredOutcome:
+          type: string
+        amountDisputed:
+          type: number
+
+    CreateFeeConfigRequest:
+      type: object
+      required: [feeType, feeValue]
+      properties:
+        merchantId:
+          type: string
+          format: uuid
+        feeType:
+          type: string
+          enum: [PERCENTAGE, FLAT, BLENDED]
+        feeValue:
+          type: number
+        minFee:
+          type: number
+          default: 500
+        maxFee:
+          type: number
+          default: 50000
+        effectiveFrom:
+          type: string
+          format: date-time
+        effectiveUntil:
+          type: string
+          format: date-time
+
+    PaymentWebhookPayload:
+      type: object
+      properties:
+        reference:
+          type: string
+        status:
+          type: string
+          enum: [SUCCESS, FAILED, PENDING]
+        amount:
+          type: number
+          format: decimal
+        currency:
+          type: string
+          example: "NGN"
+        paidAt:
+          type: string
+          format: date-time
+
+    PaymentReferenceDTO:
+      type: object
+      properties:
+        reference:
+          type: string
+          example: "ESC-2024-001"
+
+    AmlAlert:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        paymentId:
+          type: string
+          format: uuid
+        customerId:
+          type: string
+          format: uuid
+        alertType:
+          type: string
+          example: "THRESHOLD_EXCEEDED"
+        amount:
+          type: number
+          format: decimal
+        status:
+          type: string
+          enum: [OPEN, UNDER_REVIEW, CLOSED_FALSE_POSITIVE, CONFIRMED_SUSPICIOUS, SAR_FILED]
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    PrivacyPolicy:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: string
+          example: "1.0"
+        title:
+          type: string
+        content:
+          type: string
+        effectiveFrom:
+          type: string
+          format: date-time
+
+    TermsOfService:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: string
+          example: "1.0"
+        title:
+          type: string
+        content:
+          type: string
+        effectiveFrom:
+          type: string
+          format: date-time
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        fullName:
+          type: string
+        phone:
+          type: string
+        role:
+          type: string
+          enum: [CUSTOMER, MERCHANT, ADMIN]
+        consentGiven:
+          type: boolean
+        termsAccepted:
+          type: boolean
+        marketingConsent:
+          type: boolean
+        dataProcessingConsent:
+          type: boolean
+        privacyPolicyVersion:
+          type: string
+
+    MerchantProfileResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        businessName:
+          type: string
+        email:
+          type: string
+          format: email
+          description: Will be masked in response
+        phone:
+          type: string
+          description: Will be masked in response
+        bankAccountNumber:
+          type: string
+          description: Will be masked in response
+        bvn:
+          type: string
+          description: Will be masked in response
+        settlementEmail:
+          type: string
+          description: Will be masked in response
+        status:
+          type: string
+          enum: [PENDING, APPROVED, SUSPENDED]
+
+# ─── WEBHOOK EVENTS ──────────────────────────────────────────
+# Events sent to merchant webhook URL:
+#
+# escrow.initiated     — new escrow created
+# escrow.funded        — payment received, ship now
+# escrow.shipped       — tracking submitted
+# escrow.delivered     — delivery confirmed
+# escrow.confirmed     — customer confirmed receipt
+# escrow.disputed      — customer raised dispute
+# escrow.auto_released — 72hr timer expired
+# escrow.released      — funds released to merchant
+# escrow.refunded      — funds refunded to customer
+#
+# Webhook Payload Structure:
+# {
+#   "event": "escrow.funded",
+#   "timestamp": "2024-01-12T09:00:00Z",
+#   "data": {
+#     "reference": "TXN-2024-A3F9K2",
+#     "status": "FUNDED",
+#     "amount": 850000.00,
+#     "merchantAmount": 837250.00,
+#     "productDescription": "Samsung Galaxy S24 Ultra",
+#     "customerName": "John Doe"
+#   }
+# }

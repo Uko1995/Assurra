@@ -1,0 +1,271 @@
+erDiagram
+    %% Each service owns its own database. UUID references are used across services; no cross-service foreign keys.
+
+    USERS {
+        uuid id PK
+        string email UK "encrypted"
+        string phone "encrypted"
+        string full_name
+        string password_hash
+        enum role
+        enum kyc_status
+        boolean email_verified
+        boolean marketing_consent
+        boolean data_processing_consent
+        boolean is_active
+        timestamp created_at
+    }
+
+    MERCHANT_PROFILES {
+        uuid id PK
+        uuid user_id "UUID ref → users"
+        string business_name
+        string business_type
+        string bank_account_number "encrypted"
+        string bank_code
+        string bank_name
+        string bvn "encrypted"
+        string api_key UK
+        string api_key_prefix
+        string webhook_url
+        string webhook_secret
+        boolean is_verified
+        timestamp kyc_submitted_at
+        timestamp kyc_reviewed_at
+    }
+
+    REFRESH_TOKENS {
+        uuid id PK
+        uuid user_id FK
+        string token_hash UK
+        string device_fingerprint
+        timestamp expires_at
+        timestamp created_at
+    }
+
+    PRIVACY_POLICIES {
+        uuid id PK
+        integer version
+        text content
+        boolean is_active
+        timestamp effective_date
+        timestamp created_at
+    }
+
+    TERMS_OF_SERVICE {
+        uuid id PK
+        integer version
+        text content
+        boolean is_active
+        timestamp effective_date
+        timestamp created_at
+    }
+
+    KYC_DOCUMENTS {
+        uuid id PK
+        uuid merchant_id FK
+        string document_type
+        string file_url
+        string file_name
+        string cloudinary_public_id
+        timestamp uploaded_at
+    }
+
+    FEE_CONFIGURATIONS {
+        uuid id PK
+        uuid merchant_id "UUID ref → merchant_profiles"
+        enum fee_type
+        decimal fee_value
+        decimal min_fee
+        decimal max_fee
+        boolean is_active
+        timestamp created_at
+    }
+
+    ESCROW_TRANSACTIONS {
+        uuid id PK
+        string reference UK
+        uuid customer_id "UUID ref → users"
+        uuid merchant_id "UUID ref → users"
+        uuid merchant_profile_id "UUID ref → merchant_profiles"
+        decimal amount
+        decimal escrow_fee
+        decimal merchant_amount
+        string currency
+        enum status
+        text product_description
+        integer product_quantity
+        integer agreed_delivery_days
+        string payment_reference
+        string payment_channel
+        timestamp funded_at
+        timestamp payment_expires_at
+        string tracking_number
+        string logistics_provider
+        timestamp shipped_at
+        timestamp delivered_at
+        timestamp confirmation_deadline
+        timestamp auto_release_at
+        timestamp confirmed_at
+        timestamp paid_out_at
+        string idempotency_key UK
+        timestamp created_at
+    }
+
+    ESCROW_STATE_HISTORY {
+        uuid id PK
+        uuid escrow_id FK
+        enum from_status
+        enum to_status
+        enum triggered_by
+        uuid triggered_by_id "UUID ref → users"
+        text reason
+        jsonb metadata
+        timestamp created_at
+    }
+
+    DISPUTES {
+        uuid id PK
+        uuid escrow_id "UUID ref → escrow_transactions"
+        uuid raised_by "UUID ref → users"
+        enum reason
+        text description
+        enum status
+        text resolution_note
+        uuid resolved_by "UUID ref → users"
+        boolean merchant_responded
+        text merchant_response
+        timestamp response_deadline
+        timestamp resolved_at
+        timestamp created_at
+    }
+
+    DISPUTE_EVIDENCE {
+        uuid id PK
+        uuid dispute_id FK
+        uuid uploaded_by "UUID ref → users"
+        enum uploaded_by_role
+        string file_url
+        string cloudinary_public_id
+        string file_type
+        integer file_size_kb
+        text description
+        timestamp created_at
+    }
+
+    PAYOUTS {
+        uuid id PK
+        uuid escrow_id "UUID ref → escrow_transactions"
+        uuid recipient_id "UUID ref → users"
+        enum payout_type
+        decimal amount
+        string currency
+        string bank_account
+        string bank_code
+        string psp_reference
+        enum status
+        text failure_reason
+        integer retry_count
+        timestamp next_retry_at
+        timestamp initiated_at
+        timestamp completed_at
+    }
+
+    AML_ALERTS {
+        uuid id PK
+        uuid escrow_id "UUID ref → escrow_transactions"
+        uuid user_id "UUID ref → users"
+        string alert_type
+        text description
+        enum status
+        decimal risk_score
+        timestamp created_at
+    }
+
+    AML_CASES {
+        uuid id PK
+        uuid alert_id FK
+        uuid assigned_to "UUID ref → users"
+        enum status
+        text summary
+        timestamp opened_at
+        timestamp closed_at
+        timestamp created_at
+    }
+
+    AML_CASE_NOTES {
+        uuid id PK
+        uuid case_id FK
+        uuid author_id "UUID ref → users"
+        text note
+        timestamp created_at
+    }
+
+    NOTIFICATIONS {
+        uuid id PK
+        uuid escrow_id "UUID ref → escrow_transactions"
+        uuid recipient_id "UUID ref → users"
+        enum channel
+        string event_type
+        string subject
+        text body
+        enum status
+        timestamp sent_at
+        integer retry_count
+        timestamp created_at
+    }
+
+    WEBHOOK_EVENTS {
+        uuid id PK
+        uuid merchant_id "UUID ref → merchant_profiles"
+        uuid escrow_id "UUID ref → escrow_transactions"
+        string event_type
+        jsonb payload
+        timestamp created_at
+    }
+
+    WEBHOOK_DELIVERY_ATTEMPTS {
+        uuid id PK
+        uuid event_id FK
+        string webhook_url
+        integer status_code
+        boolean is_success
+        integer attempt_number
+        timestamp next_retry_at
+        timestamp created_at
+    }
+
+    IDEMPOTENCY_RECORDS {
+        string idempotency_key PK
+        uuid user_id "UUID ref → users"
+        string endpoint
+        integer response_status
+        jsonb response_body
+        timestamp created_at
+        timestamp expires_at
+    }
+
+    AUDIT_LOGS {
+        uuid id PK
+        string entity_type
+        uuid entity_id
+        string action
+        uuid performed_by "UUID ref → users"
+        enum performed_by_role
+        string ip_address
+        jsonb old_values "diff only"
+        jsonb new_values "diff only"
+        timestamp created_at
+        %% Immutable — no UPDATE or DELETE permitted
+    }
+
+    %% Relationships (intra-service only)
+    USERS ||--o{ MERCHANT_PROFILES : "has"
+    USERS ||--o{ REFRESH_TOKENS : "has"
+    MERCHANT_PROFILES ||--o{ KYC_DOCUMENTS : "submits"
+    ESCROW_TRANSACTIONS ||--o{ ESCROW_STATE_HISTORY : "records"
+    DISPUTES ||--o{ DISPUTE_EVIDENCE : "has"
+    AML_ALERTS ||--o| AML_CASES : "generates"
+    AML_CASES ||--o{ AML_CASE_NOTES : "has"
+    WEBHOOK_EVENTS ||--o{ WEBHOOK_DELIVERY_ATTEMPTS : "has"
+    USERS ||--o{ AUDIT_LOGS : "generates"

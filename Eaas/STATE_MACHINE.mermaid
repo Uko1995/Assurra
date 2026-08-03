@@ -1,0 +1,33 @@
+stateDiagram-v2
+    [*] --> INITIATED : Customer creates escrow
+
+    INITIATED --> FUNDED : Interswitch payment webhook received
+    INITIATED --> CANCELLED : Expired (24hrs) or customer cancels
+
+    FUNDED --> MERCHANT_NOTIFIED : System notifies merchant
+    FUNDED --> CANCELLED : Merchant rejected / admin cancels
+
+    MERCHANT_NOTIFIED --> SHIPPED : Merchant submits tracking number
+
+    SHIPPED --> DELIVERED : Merchant or logistics marks delivered
+
+    DELIVERED --> CONFIRMED : Customer confirms within 72hrs
+    DELIVERED --> DISPUTED : Customer raises dispute within 72hrs
+    DELIVERED --> AUTO_RELEASED : 72hr timer expires with no response
+
+    CONFIRMED --> RELEASED : Payout triggered to merchant
+
+    AUTO_RELEASED --> RELEASED : Payout triggered to merchant
+
+    DISPUTED --> UNDER_REVIEW : Admin picks up dispute
+
+    UNDER_REVIEW --> RESOLVED_MERCHANT : Admin rules in merchant's favour
+    UNDER_REVIEW --> RESOLVED_CUSTOMER : Admin rules in customer's favour
+
+    RESOLVED_MERCHANT --> RELEASED : Payout triggered to merchant
+
+    RESOLVED_CUSTOMER --> REFUNDED : Refund triggered to customer
+
+    RELEASED --> [*] : Terminal — merchant paid ✅
+    REFUNDED --> [*] : Terminal — customer refunded ✅
+    CANCELLED --> [*] : Terminal — no funds moved ✅

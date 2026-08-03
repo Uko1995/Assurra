@@ -1,0 +1,80 @@
+sequenceDiagram
+    autonumber
+
+    participant C as Customer
+    participant AG as API Gateway
+    participant ES as Escrow Service
+    participant PS as Payment Service
+    participant MQ as RabbitMQ
+    participant NS as Notification Service
+    participant M as Merchant
+    participant PO as Payout Service
+    participant INT as Interswitch
+
+    Note over C,INT: ── HAPPY PATH: Escrow Lifecycle ──
+
+    %% Step 1: Create Escrow
+    C->>AG: POST /escrow (X-Idempotency-Key)
+    AG->>ES: Route request (JWT validated)
+    ES->>ES: Validate merchant exists & verified (KYC docs in Cloudinary)
+    ES->>ES: Look up fee from DB (fee_configurations)
+    ES->>ES: Calculate fee, generate reference TXN-YYYY-XXXXXX
+    ES->>INT: Create payment link
+    INT-->>ES: Payment link URL
+    ES->>ES: Save escrow (status=INITIATED)
+    ES-->>AG: 201 { reference, paymentLink, fee breakdown }
+    AG-->>C: 201 Created
+
+    %% Step 2: Customer Pays
+    C->>INT: Opens payment link, completes payment
+    INT->>PS: POST /webhooks/interswitch/payments (webhook + HMAC signature)
+    PS->>PS: Verify HMAC-SHA512 signature
+    PS->>ES: Update escrow status → FUNDED
+    ES->>ES: Record state history
+    ES->>MQ: Publish escrow.funded
+    ES->>MQ: Publish audit.event (diff via DiffAuditHelper)
+
+    %% Step 3: Notify Merchant
+    MQ->>NS: escrow.funded event
+    NS->>M: Email + SMS: "Payment received. Ship now!"
+    ES->>ES: Update status → MERCHANT_NOTIFIED
+    ES->>MQ: Publish escrow.merchant.notified
+    MQ->>NS: Deliver webhook to merchant's URL
+
+    %% Step 4: Merchant Ships
+    M->>AG: POST /escrow/{ref}/ship { trackingNumber }
+    AG->>ES: Route (API key validated)
+    ES->>ES: Validate transition MERCHANT_NOTIFIED → SHIPPED
+    ES->>ES: Save tracking number, update status
+    ES->>MQ: Publish escrow.shipped
+    MQ->>NS: escrow.shipped event
+    NS->>C: Email: "Your product is on its way! Tracking: GIG-XXXX"
+
+    %% Step 5: Mark Delivered
+    M->>AG: POST /escrow/{ref}/deliver
+    AG->>ES: Route request
+    ES->>ES: Update status → DELIVERED
+    ES->>ES: Set confirmation_deadline = now + 72hrs
+    ES->>MQ: Publish escrow.delivered
+    MQ->>NS: escrow.delivered event
+    NS->>C: Email + SMS: "Confirm receipt within 72 hours"
+
+    %% Step 6: Customer Confirms
+    C->>AG: POST /escrow/{ref}/confirm
+    AG->>ES: Route (JWT validated)
+    ES->>ES: Validate within confirmation window
+    ES->>ES: Update status → CONFIRMED
+    ES->>MQ: Publish escrow.confirmed
+    MQ->>PO: escrow.confirmed event
+
+    %% Step 7: Payout to Merchant
+    PO->>PO: Read merchant bank account (decrypt)
+    PO->>INT: POST /transfer { amount, recipient }
+    INT-->>PO: Transfer initiated
+    PO->>PO: Save payout (status=SUCCESS)
+    PO->>MQ: Publish payout.completed
+    MQ->>NS: payout.completed event
+    NS->>M: Email: "₦837,250 has been sent to your bank account"
+    NS->>C: Email: "Transaction complete. Thank you!"
+
+    Note over C,INT: ── END: Both parties satisfied ──
