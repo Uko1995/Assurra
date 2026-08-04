@@ -131,7 +131,7 @@ public class DisputeServiceImpl implements DisputeService {
     }
 
     @Override
-    public DisputeResponse resolveDispute(String reference, ResolveDisputeRequest request, UUID resolvedBy) {
+    public DisputeResponse  resolveDispute(String reference, ResolveDisputeRequest request, UUID resolvedBy) {
         log.info("Resolving dispute: {} with status: {}", reference, request.getResolution());
 
         Dispute dispute = disputeRepository.findByReference(reference)
