@@ -35,6 +35,11 @@ public class PaymentEventConsumer {
                 return;
             }
 
+            if (!"payment.success".equals(eventType)) {
+                log.debug("Ignoring non-funding payment event on escrow.payment.events: {}", eventType);
+                return;
+            }
+
             String escrowReference = root.path("escrowReference").asText();
             if (escrowReference.isBlank()) {
                 log.error("Received payment event without escrowReference: {}", eventType);

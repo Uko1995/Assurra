@@ -50,9 +50,11 @@ public class GatewayConfig {
 
                 // ============================================================
                 // IDENTITY SERVICE - Admin and Merchant Management (Auth Required)
+                // Note: /api/v1/admin/disputes/** must NOT match here; it is
+                // served by communication-service (AdminDisputeController).
                 // ============================================================
                 .route("identity-service-admin", r -> r
-                        .path("/api/v1/merchants/**", "/api/v1/admin/kyc/**", "/api/v1/admin/**")
+                        .path("/api/v1/merchants/**", "/api/v1/admin/kyc/**", "/api/v1/admin/merchants/**")
                         .filters(f -> f
                                 .filter(unifiedAuthFilter.apply(new UnifiedAuthFilter.Config()))
                                 .requestRateLimiter(config -> config
