@@ -185,7 +185,7 @@ spring:
         - id: identity-service-admin
           uri: http://eaas-identity-service:8081
           predicates:
-            - Path=/api/v1/merchants/**, /api/v1/admin/kyc/**, /api/v1/admin/**
+            - Path=/api/v1/merchants/**, /api/v1/admin/kyc/**, /api/v1/admin/merchants/**
           filters:
             - name: RequestRateLimiter
               args:

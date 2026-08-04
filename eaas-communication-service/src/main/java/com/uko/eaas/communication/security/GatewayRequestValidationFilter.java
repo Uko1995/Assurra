@@ -98,13 +98,16 @@ public class GatewayRequestValidationFilter extends OncePerRequestFilter {
             
             log.debug("Request validated for user: {} with role: {}", userId, role);
             
-            filterChain.doFilter(request, response);
-            
         } catch (Exception e) {
             log.error("Error validating request", e);
             sendError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, 
                     "Authentication error");
+            return;
         }
+        
+        // Downstream exceptions must propagate to Spring's exception handling,
+        // so filterChain.doFilter is invoked outside the validation try/catch.
+        filterChain.doFilter(request, response);
     }
     
     private boolean validateSignature(HttpServletRequest request, String userId, String role,

@@ -1,5 +1,6 @@
 package com.uko.eaas.communication.service.impl;
 
+import com.uko.eaas.communication.client.IdentityServiceClient;
 import com.uko.eaas.communication.dto.CreateNotificationRequest;
 import com.uko.eaas.communication.dto.NotificationResponse;
 import com.uko.eaas.communication.model.entity.Notification;
@@ -31,6 +32,7 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final EmailService emailService;
     private final SmsService smsService;
+    private final IdentityServiceClient identityServiceClient;
 
     @Override
     public NotificationResponse createNotification(CreateNotificationRequest request) {
@@ -44,6 +46,24 @@ public class NotificationServiceImpl implements NotificationService {
                         request.getUserId(), request.getSourceEventId());
                 return null;
             }
+        }
+
+        // Resolve missing contact details from the identity service
+        if (request.getType() == NotificationType.EMAIL
+                && (request.getEmailTo() == null || request.getEmailTo().isBlank())) {
+            identityServiceClient.getUserContact(request.getUserId()).ifPresent(contact -> {
+                if (contact.getEmail() != null && !contact.getEmail().isBlank()) {
+                    request.setEmailTo(contact.getEmail());
+                }
+            });
+        }
+        if (request.getType() == NotificationType.SMS
+                && (request.getPhoneNumber() == null || request.getPhoneNumber().isBlank())) {
+            identityServiceClient.getUserContact(request.getUserId()).ifPresent(contact -> {
+                if (contact.getPhoneNumber() != null && !contact.getPhoneNumber().isBlank()) {
+                    request.setPhoneNumber(contact.getPhoneNumber());
+                }
+            });
         }
 
         Notification notification = Notification.builder()
@@ -145,8 +165,13 @@ public class NotificationServiceImpl implements NotificationService {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new EntityNotFoundException("Notification not found: " + notificationId));
 
-        if (notification.getEmailTo() == null) {
-            throw new IllegalStateException("No email address specified");
+        if (notification.getEmailTo() == null || notification.getEmailTo().isBlank()) {
+            log.warn("Skipping email notification {}: no email address specified", notificationId);
+            notification.setStatus(NotificationStatus.FAILED);
+            notification.setFailedAt(LocalDateTime.now());
+            notification.setFailureReason("No email address specified");
+            notificationRepository.save(notification);
+            return;
         }
 
         try {
@@ -168,7 +193,6 @@ public class NotificationServiceImpl implements NotificationService {
             notification.setFailedAt(LocalDateTime.now());
             notification.setFailureReason(e.getMessage());
             notificationRepository.save(notification);
-            throw e;
         }
     }
 
@@ -177,8 +201,13 @@ public class NotificationServiceImpl implements NotificationService {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new EntityNotFoundException("Notification not found: " + notificationId));
 
-        if (notification.getPhoneNumber() == null) {
-            throw new IllegalStateException("No phone number specified");
+        if (notification.getPhoneNumber() == null || notification.getPhoneNumber().isBlank()) {
+            log.warn("Skipping SMS notification {}: no phone number specified", notificationId);
+            notification.setStatus(NotificationStatus.FAILED);
+            notification.setFailedAt(LocalDateTime.now());
+            notification.setFailureReason("No phone number specified");
+            notificationRepository.save(notification);
+            return;
         }
 
         try {
@@ -196,7 +225,6 @@ public class NotificationServiceImpl implements NotificationService {
             notification.setFailedAt(LocalDateTime.now());
             notification.setFailureReason(e.getMessage());
             notificationRepository.save(notification);
-            throw e;
         }
     }
 

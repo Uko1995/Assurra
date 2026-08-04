@@ -275,6 +275,12 @@ public class EscrowServiceImpl implements EscrowService {
         EscrowTransaction escrow = escrowRepository.findByReference(reference)
                 .orElseThrow(() -> new EntityNotFoundException("Escrow not found: " + reference));
 
+        // Idempotent: re-raising a dispute on an already-disputed escrow is a no-op
+        if (escrow.getStatus() == EscrowStatus.DISPUTED) {
+            log.info("Escrow {} is already DISPUTED, returning existing state", reference);
+            return mapToResponse(escrow);
+        }
+
         validateStateTransition(escrow.getStatus(), EscrowStatus.DISPUTED);
 
         EscrowStatus oldStatus = escrow.getStatus();
@@ -297,6 +303,12 @@ public class EscrowServiceImpl implements EscrowService {
 
         EscrowTransaction escrow = escrowRepository.findByReference(reference)
                 .orElseThrow(() -> new EntityNotFoundException("Escrow not found: " + reference));
+
+        if (escrow.getStatus() == EscrowStatus.RELEASED || escrow.getStatus() == EscrowStatus.REFUNDED) {
+            log.info("Escrow {} already resolved (status: {}), treating resolve as idempotent no-op",
+                    reference, escrow.getStatus());
+            return mapToResponse(escrow);
+        }
 
         if (escrow.getStatus() != EscrowStatus.DISPUTED) {
             throw new IllegalStateException("Cannot resolve escrow in status: " + escrow.getStatus());

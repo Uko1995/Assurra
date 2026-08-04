@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -72,7 +73,7 @@ public class NotificationEventConsumer {
     private void handleEscrowEvent(EscrowEvent event) {
         String eventType = event.getEventType();
         String sourceEventId = eventType + ":" + event.getReference();
-        Object data = Map.of(
+        Map<String, Object> data = nullSafeMap(
                 "reference", event.getReference(),
                 "amount", event.getAmount(),
                 "currency", event.getCurrency(),
@@ -85,22 +86,22 @@ public class NotificationEventConsumer {
             case "escrow.funded" -> {
                 notificationService.sendNotificationForEvent(eventType, event.getCustomerId(), event.getReference(), data, sourceEventId + ":cust");
                 notificationService.sendNotificationForEvent(eventType, event.getMerchantId(), event.getReference(), data, sourceEventId + ":merch");
-                webhookEventPublisher.publishIfConfigured(eventType, event.getReference(), safeParseUUID(event.getMerchantId()), (Map<String, Object>) data);
+                webhookEventPublisher.publishIfConfigured(eventType, event.getReference(), safeParseUUID(event.getMerchantId()), data);
             }
             case "escrow.shipped" ->
                     notificationService.sendNotificationForEvent(eventType, event.getCustomerId(), event.getReference(), data, sourceEventId + ":cust");
             case "escrow.delivered" -> {
                 notificationService.sendNotificationForEvent(eventType, event.getCustomerId(), event.getReference(), data, sourceEventId + ":cust");
-                webhookEventPublisher.publishIfConfigured(eventType, event.getReference(), safeParseUUID(event.getMerchantId()), (Map<String, Object>) data);
+                webhookEventPublisher.publishIfConfigured(eventType, event.getReference(), safeParseUUID(event.getMerchantId()), data);
             }
             case "escrow.confirmed" -> {
                 notificationService.sendNotificationForEvent(eventType, event.getMerchantId(), event.getReference(), data, sourceEventId + ":merch");
-                webhookEventPublisher.publishIfConfigured(eventType, event.getReference(), safeParseUUID(event.getMerchantId()), (Map<String, Object>) data);
+                webhookEventPublisher.publishIfConfigured(eventType, event.getReference(), safeParseUUID(event.getMerchantId()), data);
             }
             case "escrow.auto-released" -> {
                 notificationService.sendNotificationForEvent(eventType, event.getCustomerId(), event.getReference(), data, sourceEventId + ":cust");
                 notificationService.sendNotificationForEvent(eventType, event.getMerchantId(), event.getReference(), data, sourceEventId + ":merch");
-                webhookEventPublisher.publishIfConfigured(eventType, event.getReference(), safeParseUUID(event.getMerchantId()), (Map<String, Object>) data);
+                webhookEventPublisher.publishIfConfigured(eventType, event.getReference(), safeParseUUID(event.getMerchantId()), data);
             }
             case "escrow.cancelled.refund" ->
                     notificationService.sendNotificationForEvent(eventType, event.getCustomerId(), event.getReference(), data, sourceEventId + ":cust");
@@ -113,7 +114,7 @@ public class NotificationEventConsumer {
     private void handlePaymentEvent(PaymentEvent event) {
         String eventType = event.getEventType();
         String sourceEventId = eventType + ":" + event.getReference();
-        Object data = Map.of(
+        Map<String, Object> data = nullSafeMap(
                 "reference", event.getReference(),
                 "escrowReference", event.getEscrowReference(),
                 "amount", event.getAmount(),
@@ -130,7 +131,7 @@ public class NotificationEventConsumer {
     private void handlePayoutEvent(PayoutEvent event) {
         String eventType = event.getEventType();
         String sourceEventId = eventType + ":" + event.getReference();
-        Object data = Map.of(
+        Map<String, Object> data = nullSafeMap(
                 "reference", event.getReference(),
                 "escrowReference", event.getEscrowReference(),
                 "amount", event.getNetAmount(),
@@ -142,6 +143,16 @@ public class NotificationEventConsumer {
         } else {
             log.debug("No notification mapping for payout event: {}", eventType);
         }
+    }
+
+    private Map<String, Object> nullSafeMap(Object... keyValues) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        for (int i = 0; i + 1 < keyValues.length; i += 2) {
+            if (keyValues[i] instanceof String key && keyValues[i + 1] != null) {
+                map.put(key, keyValues[i + 1]);
+            }
+        }
+        return map;
     }
 
     private UUID safeParseUUID(String value) {

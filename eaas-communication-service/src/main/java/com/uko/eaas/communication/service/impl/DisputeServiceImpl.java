@@ -137,8 +137,9 @@ public class DisputeServiceImpl implements DisputeService {
         Dispute dispute = disputeRepository.findByReference(reference)
                 .orElseThrow(() -> new EntityNotFoundException("Dispute not found: " + reference));
 
-        if (dispute.getStatus() == DisputeStatus.CLOSED) {
-            throw new IllegalStateException("Dispute is already closed");
+        if (dispute.getStatus() != DisputeStatus.OPEN) {
+            log.info("Dispute {} already {} - treating resolve as idempotent no-op", reference, dispute.getStatus());
+            return mapToResponse(dispute);
         }
 
         dispute.setStatus(request.getResolution());
