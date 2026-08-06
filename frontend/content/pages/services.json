@@ -1,0 +1,40 @@
+{
+  "useCases": [
+    {
+      "audience": "E-commerce",
+      "problem": "Buyers pay upfront and hope the seller delivers.",
+      "solution": "Assurra holds the payment until the buyer confirms receipt.",
+      "outcome": "Fewer disputes, more completed sales, happier customers."
+    },
+    {
+      "audience": "Freelance services",
+      "problem": "Clients vanish after payment, or freelancers work unpaid.",
+      "solution": "Funds are held and released when the milestone or deliverable is approved.",
+      "outcome": "Both parties stay protected through every stage of work."
+    },
+    {
+      "audience": "B2B procurement",
+      "problem": "Suppliers demand prepayment for large orders.",
+      "solution": "Corporate buyers fund an escrow that releases on confirmed delivery.",
+      "outcome": "Large orders flow with shared trust and a full audit trail."
+    },
+    {
+      "audience": "Vehicle & asset sales",
+      "problem": "High-value items bought online carry enormous fraud risk.",
+      "solution": "The full amount is held in escrow until the buyer inspects and confirms.",
+      "outcome": "High-ticket sales complete with protection on both sides."
+    },
+    {
+      "audience": "Marketplaces",
+      "problem": "Platforms inherit the reputational damage of buyer-seller disputes.",
+      "solution": "Embed Assurra via API so every transaction is escrow-protected.",
+      "outcome": "Lower fraud, faster onboarding, and a safer marketplace brand."
+    },
+    {
+      "audience": "Cross-border sellers",
+      "problem": "International buyers hesitate to prepay Nigerian sellers.",
+      "solution": "Escrow provides the institutional trust buyers expect.",
+      "outcome": "African sellers unlock export sales without prepayment barriers."
+    }
+  ]
+}

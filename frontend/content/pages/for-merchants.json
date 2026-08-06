@@ -1,0 +1,28 @@
+{
+  "features": [
+    {
+      "title": "Shareable escrow links",
+      "description": "Create an escrow and send a payment link over WhatsApp, Instagram, email, or SMS. Buyers fund it in minutes with card or bank transfer."
+    },
+    {
+      "title": "Instant funding alerts",
+      "description": "Get notified the moment a buyer funds an escrow — by email, SMS, and in-app. Know exactly when to ship."
+    },
+    {
+      "title": "24-hour payouts",
+      "description": "Once the buyer confirms delivery, funds are released and paid to your Nigerian bank account within 24 hours."
+    },
+    {
+      "title": "Clear, capped fees",
+      "description": "1.5% per transaction, minimum ₦500, maximum ₦50,000. No hidden FX costs, no surprise charges."
+    },
+    {
+      "title": "Tracking & delivery proof",
+      "description": "Submit tracking numbers and mark delivery so the buyer and the escrow timeline stay perfectly in sync."
+    },
+    {
+      "title": "Dispute protection",
+      "description": "If a buyer raises a dispute, our team reviews evidence within 48 hours. Fair, fast, and evidence-based."
+    }
+  ]
+}
