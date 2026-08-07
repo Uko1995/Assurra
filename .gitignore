@@ -46,3 +46,6 @@ application-dev.yml
 ### Logs ###
 *.log
 logs/
+
+### Cursor MCP (contains secrets) ###
+.cursor/mcp.json

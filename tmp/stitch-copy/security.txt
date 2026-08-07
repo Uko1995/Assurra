@@ -1,0 +1,39 @@
+Assurra Escrow - Security
+Security
+Bank-grade security, Nigerian regulation
+Fort Knox for your
+high-stakes transactions.
+We combine uncompromising cryptography with deep regulatory compliance to create a trustless escrow bridge. Funds are held securely until confirmation, auto-release, or dispute resolution.
+CBN
+Regulated
+NDPR
+Compliant
+verified_user
+Zero-Breach Architecture
+Audited quarterly by independent firms.
+Security Health Monitor
+Real-time visibility into the systems guarding your assets.
+256-bit AES
+End-to-End Encryption
+Active
+Bank and BVN data are encrypted at rest with AES-256. Access is secured via JWT (1h) and rotating refresh tokens for maximum session integrity.
+fingerprint
+Identity
+Mandatory MFA
+how_to_reg
+Biometric &amp; Token support required for all sensitive actions.
+Funds
+Regulated Custody
+Funds are held in segregated, CBN-regulated Tier-1 accounts. We enforce strict KYC before payouts and continuous AML monitoring for all merchant accounts.
+View Audit Report
+NDPR Data Compliance
+Our NDPR-aligned privacy framework ensures data sovereignty. We maintain append-only audit logs for every transaction and target a 99.9% system uptime for uninterrupted service.
+Data Minimization
+Right to Erasure
+key
+HMAC-Signed Webhooks
+Bank and BVN data are encrypted at rest with AES-256. Access is secured via JWT (1h) and rotating refresh tokens for maximum session integrity.
+Privacy Policy
+Terms of Service
+Security
+Contact Us

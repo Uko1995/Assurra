@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Assurra - For Customers</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#dce5d9",
+                        "tertiary-fixed-dim": "#c7c7c2",
+                        "inverse-primary": "#75dd78",
+                        "on-secondary-fixed-variant": "#1f5125",
+                        "on-surface": "#151d16",
+                        "on-secondary-fixed": "#002106",
+                        "surface-container-high": "#e2ebdf",
+                        "surface-container": "#e7f0e4",
+                        "on-primary-container": "#e2ffdb",
+                        "on-primary-fixed": "#002205",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-container": "#f8f7f2",
+                        "background": "#f3fcf0",
+                        "on-secondary-container": "#3e6f40",
+                        "surface-dim": "#d3ddd1",
+                        "on-surface-variant": "#3f4a3d",
+                        "outline": "#6f7a6b",
+                        "primary-container": "#11832b",
+                        "error": "#ba1a1a",
+                        "inverse-surface": "#2a322b",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#e3e3de",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#005316",
+                        "inverse-on-surface": "#eaf3e7",
+                        "secondary-fixed-dim": "#9dd49b",
+                        "surface-bright": "#f3fcf0",
+                        "primary-fixed-dim": "#75dd78",
+                        "on-background": "#151d16",
+                        "secondary-fixed": "#b9f1b6",
+                        "primary": "#00681d",
+                        "surface-tint": "#006e20",
+                        "outline-variant": "#becab9",
+                        "surface": "#f3fcf0",
+                        "primary-fixed": "#91fa91",
+                        "on-tertiary-fixed-variant": "#464744",
+                        "secondary": "#38693b",
+                        "surface-container-highest": "#dce5d9",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#edf6ea",
+                        "tertiary": "#585955",
+                        "tertiary-container": "#71716d",
+                        "secondary-container": "#b9f1b6",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "stack-md": "16px",
+                        "container-max": "1280px",
+                        "section-padding": "80px",
+                        "gutter": "24px",
+                        "stack-sm": "8px",
+                        "stack-lg": "32px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Playfair Display"],
+                        "headline-sm": ["Playfair Display"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Playfair Display"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "display-lg-mobile": ["Playfair Display"],
+                        "body-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "headline-sm": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-lg": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "display-lg-mobile": ["36px", { "lineHeight": "44px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        
+        .pattern-overlay {
+            
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid theme('colors.surface-variant');
+            box-shadow: 0 4px 20px rgba(0, 33, 6, 0.04);
+        }
+        
+        .timeline-node::before {
+            content: '';
+            position: absolute;
+            top: 24px;
+            bottom: -32px;
+            left: 23px;
+            width: 2px;
+            background: theme('colors.surface-variant');
+            z-index: 0;
+        }
+        
+        .timeline-node:last-child::before {
+            display: none;
+        }
+        
+        .timeline-node.active::before {
+            background: theme('colors.primary');
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen relative font-body-md text-body-md">
+<div class="fixed inset-0 pattern-overlay pointer-events-none z-0"></div>
+<!-- TopNavBar -->
+<nav class="w-full sticky top-0 z-50 bg-surface/90 dark:bg-surface-dim/90 backdrop-blur-md shadow-sm dark:shadow-none">
+<div class="flex justify-between items-center px-8 py-4 max-w-container-max mx-auto font-body-md text-body-md">
+<a class="font-headline-sm text-headline-sm text-primary dark:text-inverse-primary tracking-tight" href="#">Assurra</a>
+<div class="hidden md:flex items-center space-x-8">
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">Services</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">How It Works</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">Pricing</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">For Merchants</a>
+<a class="text-primary dark:text-inverse-primary font-bold border-b-2 border-primary pb-1 hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">For Customers</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">Developers</a>
+</div>
+<button class="bg-primary text-on-primary px-8 py-3 rounded-lg font-label-md text-label-md hover:bg-primary/90 transition-colors">
+                Get Started
+            </button>
+</div>
+</nav>
+<main class="relative z-10 pb-section-padding">
+<!-- Hero Section -->
+<section class="max-w-container-max mx-auto px-8 pt-24 pb-16">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+<div class="space-y-8">
+<h1 class="font-display-lg text-display-lg text-on-surface">Shop online with <br/> <span class="text-primary italic">zero risk.</span></h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg">
+                        Assurra protects your money until you receive exactly what you ordered. No more anxiety about online purchases. If it's not right, your money stays safe.
+                    </p>
+<div class="flex items-center space-x-6">
+<button class="bg-primary text-on-primary px-8 py-4 rounded-lg font-label-md text-label-md hover:bg-primary/90 transition-colors shadow-sm">
+                            Create Free Account
+                        </button>
+<div class="flex items-center space-x-2 text-on-surface-variant font-label-md text-label-md">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+<span>100% Buyer Protection</span>
+</div>
+</div>
+</div>
+<div class="relative h-[600px] rounded-xl overflow-hidden glass-card p-4">
+<img class="w-full h-full object-cover rounded-lg" data-alt="A portrait of a joyful Nigerian woman unboxing a premium package in a sunlit, modern apartment. She is smiling warmly at the camera, holding a beautifully crafted artisan bag. The lighting is warm and natural, casting soft shadows. The overall aesthetic is high-end, clean, and optimistic, reflecting the Assurra brand's warm minimalism and trust." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDL-PIbepMus18O8qgtSylt0KQ55KCC9kKhy7oYOBIu-XhXrHHnxscIM20yoSJe8hd2jvp2V-utxoVeIZRIXECLiKpe1QOH3B5CAdTPO9m8MHmw7F1HdD6zU2Uqlms4E1koo9GZJWqzxeC3dYEiSMNtDagOJ7TuwpNAOhfifKoL7TYgjz-BNWwztKGd3e4Km19BJBOmF8Y7nFUJTkTXiJwNZ-sfS92HlRnlgleb8_BQt9OlHFaoNlRE-A"/>
+<!-- Floating UI Element -->
+<div class="absolute bottom-12 left-[-20px] glass-card p-6 rounded-xl flex items-center space-x-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Payment Released</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Item received in perfect condition.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Protection Rules Section -->
+<section class="max-w-container-max mx-auto px-8 py-16">
+<div class="text-center mb-16 space-y-4">
+<h2 class="font-headline-md text-headline-md text-on-surface">How Our Protection Works</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
+                    A transparent, secure process designed for your absolute peace of mind. You can track every step of your transaction in real-time.
+                </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+<!-- Rule 1 -->
+<div class="glass-card p-8 rounded-xl space-y-6 hover:shadow-lg transition-shadow duration-300">
+<div class="w-14 h-14 rounded-xl bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container text-3xl">lock</span>
+</div>
+<div class="space-y-3">
+<h3 class="font-headline-sm text-[20px] leading-[28px] text-on-surface">Secure Payment</h3>
+<p class="text-on-surface-variant text-sm">
+                            Make payments confidently via Interswitch. Your funds are held securely in escrow by Assurra and are never released to the merchant until you are satisfied.
+                        </p>
+</div>
+</div>
+<!-- Rule 2 -->
+<div class="glass-card p-8 rounded-xl space-y-6 hover:shadow-lg transition-shadow duration-300">
+<div class="w-14 h-14 rounded-xl bg-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container text-3xl">schedule</span>
+</div>
+<div class="space-y-3">
+<h3 class="font-headline-sm text-[20px] leading-[28px] text-on-surface">72-Hour Window</h3>
+<p class="text-on-surface-variant text-sm">
+                            Once your item is marked as delivered, a 72-hour confirmation window begins. Take your time to inspect the product and ensure it meets your expectations.
+                        </p>
+</div>
+</div>
+<!-- Rule 3 -->
+<div class="glass-card p-8 rounded-xl space-y-6 hover:shadow-lg transition-shadow duration-300">
+<div class="w-14 h-14 rounded-xl bg-error-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-error-container text-3xl">gavel</span>
+</div>
+<div class="space-y-3">
+<h3 class="font-headline-sm text-[20px] leading-[28px] text-on-surface">Dispute &amp; Resolve</h3>
+<p class="text-on-surface-variant text-sm">
+                            Not satisfied? Raise a dispute within 72 hours with evidence. Payouts are instantly frozen, and our team guarantees a binding resolution within 48 hours.
+                        </p>
+</div>
+</div>
+<!-- Rule 4 -->
+<div class="glass-card p-8 rounded-xl space-y-6 hover:shadow-lg transition-shadow duration-300">
+<div class="w-14 h-14 rounded-xl bg-tertiary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-tertiary-container text-3xl">autorenew</span>
+</div>
+<div class="space-y-3">
+<h3 class="font-headline-sm text-[20px] leading-[28px] text-on-surface">Auto-Release &amp; Refunds</h3>
+<p class="text-on-surface-variant text-sm">
+                            If no action is taken within 72 hours of delivery, funds are auto-released to the merchant. If a dispute is ruled in your favor, enjoy a swift, hassle-free refund.
+                        </p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full mt-stack-lg bg-surface-container-highest dark:bg-inverse-surface">
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-stack-lg px-8 py-section-padding max-w-container-max mx-auto font-body-md text-body-md">
+<div class="col-span-2 lg:col-span-2 space-y-4">
+<p class="font-headline-sm text-headline-sm text-on-surface dark:text-inverse-on-surface">Assurra</p>
+<p class="text-on-surface-variant dark:text-outline-variant text-sm mt-4 max-w-xs">
+                    © 2024 Assurra Escrow. Licensed and regulated by the Central Bank of Nigeria (CBN). All rights reserved.
+                </p>
+</div>
+<div class="flex flex-col space-y-3">
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Services</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">How It Works</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Pricing</a>
+</div>
+<div class="flex flex-col space-y-3">
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">For Merchants</a>
+<a class="text-on-surface dark:text-inverse-on-surface font-semibold hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">For Customers</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Developers</a>
+</div>
+<div class="flex flex-col space-y-3">
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Terms of Service</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Security</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Contact Us</a>
+</div>
+</div>
+</footer>
+</body></html>

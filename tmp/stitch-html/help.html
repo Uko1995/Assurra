@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Help Center | Assurra</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#dce5d9",
+                        "tertiary-fixed-dim": "#c7c7c2",
+                        "inverse-primary": "#75dd78",
+                        "on-secondary-fixed-variant": "#1f5125",
+                        "on-surface": "#151d16",
+                        "on-secondary-fixed": "#002106",
+                        "surface-container-high": "#e2ebdf",
+                        "surface-container": "#e7f0e4",
+                        "on-primary-container": "#e2ffdb",
+                        "on-primary-fixed": "#002205",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-container": "#f8f7f2",
+                        "background": "#f3fcf0",
+                        "on-secondary-container": "#3e6f40",
+                        "surface-dim": "#d3ddd1",
+                        "on-surface-variant": "#3f4a3d",
+                        "outline": "#6f7a6b",
+                        "primary-container": "#11832b",
+                        "error": "#ba1a1a",
+                        "inverse-surface": "#2a322b",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#e3e3de",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#005316",
+                        "inverse-on-surface": "#eaf3e7",
+                        "secondary-fixed-dim": "#9dd49b",
+                        "surface-bright": "#f3fcf0",
+                        "primary-fixed-dim": "#75dd78",
+                        "on-background": "#151d16",
+                        "secondary-fixed": "#b9f1b6",
+                        "primary": "#00681d",
+                        "surface-tint": "#006e20",
+                        "outline-variant": "#becab9",
+                        "surface": "#f3fcf0",
+                        "primary-fixed": "#91fa91",
+                        "on-tertiary-fixed-variant": "#464744",
+                        "secondary": "#38693b",
+                        "surface-container-highest": "#dce5d9",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#edf6ea",
+                        "tertiary": "#585955",
+                        "tertiary-container": "#71716d",
+                        "secondary-container": "#b9f1b6",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "stack-md": "16px",
+                        "container-max": "1280px",
+                        "section-padding": "80px",
+                        "gutter": "24px",
+                        "stack-sm": "8px",
+                        "stack-lg": "32px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Playfair Display"],
+                        "headline-sm": ["Playfair Display"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Playfair Display"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "display-lg-mobile": ["Playfair Display"],
+                        "body-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "headline-sm": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-lg": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "display-lg-mobile": ["36px", { "lineHeight": "44px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .pattern-overlay {
+            background-image: radial-gradient(#6f7a6b 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.03;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col relative overflow-x-hidden antialiased">
+<!-- Top Nav Bar (Shared Component) -->
+<nav class="w-full sticky top-0 z-50 bg-surface/90 dark:bg-surface-dim/90 backdrop-blur-md shadow-sm dark:shadow-none bg-surface/90 dark:bg-surface-dim/90">
+<div class="flex justify-between items-center px-8 py-4 max-w-container-max mx-auto">
+<div class="font-headline-sm text-headline-sm text-primary dark:text-inverse-primary tracking-tight">Assurra</div>
+<div class="hidden md:flex items-center space-x-gutter font-body-md text-body-md">
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">Services</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">How It Works</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">Pricing</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">For Merchants</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">For Customers</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">Developers</a>
+</div>
+<button class="bg-primary text-on-primary px-8 py-3 rounded-xl font-label-md hover:opacity-90 transition-opacity">Get Started</button>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow relative z-10 w-full max-w-container-max mx-auto px-margin-mobile md:px-8 py-stack-lg md:py-section-padding">
+<!-- Hero Section -->
+<section class="text-center mb-section-padding relative">
+<div class="absolute inset-0 pattern-overlay -z-10 pointer-events-none rounded-xl"></div>
+<h1 class="font-display-lg-mobile md:font-display-lg text-on-surface mb-stack-md">How can we help you?</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-stack-lg max-w-2xl mx-auto">Search our knowledge base or browse categories below to find answers to your questions.</p>
+<div class="max-w-3xl mx-auto relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full bg-[#F2F0E4] border border-outline-variant/30 text-on-surface font-body-lg rounded-xl pl-14 pr-4 py-4 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all shadow-[0_4px_20px_rgba(0,33,6,0.02)]" placeholder="Search for 'disputes', 'fees', 'account verification'..." type="text"/>
+</div>
+</section>
+<!-- Categories Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-section-padding">
+<!-- Account -->
+<div class="bg-surface-container-lowest rounded-xl p-stack-lg border border-[#E8E6D9] shadow-[0_4px_20px_rgba(0,33,6,0.04)] hover:shadow-[0_10px_30px_rgba(0,33,6,0.06)] hover:border-primary/20 transition-all cursor-pointer group">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center mb-stack-md group-hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined text-primary group-hover:text-on-primary-container">manage_accounts</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-stack-sm">Account &amp; Security</h3>
+<p class="font-body-md text-on-surface-variant mb-stack-md">Verification, password resets, and account settings.</p>
+<div class="flex flex-col gap-stack-sm">
+<button class="text-left font-body-md text-secondary hover:text-primary transition-colors flex justify-between items-center group/btn">
+<span>How to create an escrow? (Initiate terms, lock funds)</span>
+<span class="material-symbols-outlined text-sm opacity-0 group-hover/btn:opacity-100 transition-opacity -translate-x-2 group-hover/btn:translate-x-0">chevron_right</span>
+</button>
+<button class="text-left font-body-md text-secondary hover:text-primary transition-colors flex justify-between items-center group/btn">
+<span>KYC for Merchants (Mandatory for payouts)</span>
+<span class="material-symbols-outlined text-sm opacity-0 group-hover/btn:opacity-100 transition-opacity -translate-x-2 group-hover/btn:translate-x-0">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Payments -->
+<div class="bg-surface-container-lowest rounded-xl p-stack-lg border border-[#E8E6D9] shadow-[0_4px_20px_rgba(0,33,6,0.04)] hover:shadow-[0_10px_30px_rgba(0,33,6,0.06)] hover:border-primary/20 transition-all cursor-pointer group">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center mb-stack-md group-hover:bg-primary-container transition-colors">
+<span class="material-symbols-outlined text-primary group-hover:text-on-primary-container">payments</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-stack-sm">Payments &amp; Fees</h3>
+<p class="font-body-md text-on-surface-variant mb-stack-md">Deposit timelines, withdrawal limits, and pricing.</p>
+<div class="flex flex-col gap-stack-sm">
+<button class="text-left font-body-md text-secondary hover:text-primary transition-colors flex justify-between items-center group/btn">
+<span>How to pay? (Interswitch integration)</span>
+<span class="material-symbols-outlined text-sm opacity-0 group-hover/btn:opacity-100 transition-opacity -translate-x-2 group-hover/btn:translate-x-0">chevron_right</span>
+</button>
+<button class="text-left font-body-md text-secondary hover:text-primary transition-colors flex justify-between items-center group/btn">
+<span>Fees (Transparent 1.5% fee)</span>
+<span class="material-symbols-outlined text-sm opacity-0 group-hover/btn:opacity-100 transition-opacity -translate-x-2 group-hover/btn:translate-x-0">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Disputes -->
+<div class="bg-surface-container-lowest rounded-xl p-stack-lg border border-[#E8E6D9] shadow-[0_4px_20px_rgba(0,33,6,0.04)] hover:shadow-[0_10px_30px_rgba(0,33,6,0.06)] hover:border-primary/20 transition-all cursor-pointer group">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center mb-stack-md group-hover:bg-error-container transition-colors">
+<span class="material-symbols-outlined text-primary group-hover:text-on-error-container">gavel</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-stack-sm">Dispute Resolution</h3>
+<p class="font-body-md text-on-surface-variant mb-stack-md">Handling disagreements, evidence submission, and mediation.</p>
+<div class="flex flex-col gap-stack-sm">
+<button class="text-left font-body-md text-secondary hover:text-primary transition-colors flex justify-between items-center group/btn">
+<span>Shipping &amp; Confirmation (72h inspection window)</span>
+<span class="material-symbols-outlined text-sm opacity-0 group-hover/btn:opacity-100 transition-opacity -translate-x-2 group-hover/btn:translate-x-0">chevron_right</span>
+</button>
+<button class="text-left font-body-md text-secondary hover:text-primary transition-colors flex justify-between items-center group/btn">
+<span>Disputes (Freeze payout, evidence submission)</span>
+<span class="material-symbols-outlined text-sm opacity-0 group-hover/btn:opacity-100 transition-opacity -translate-x-2 group-hover/btn:translate-x-0">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Contact Section -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-stack-lg bg-surface-container-low rounded-xl p-stack-lg md:p-section-padding border border-[#E8E6D9]">
+<!-- Contact Info & Map -->
+<div class="flex flex-col h-full">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-stack-sm">Get in Touch</h2>
+<p class="font-body-lg text-on-surface-variant mb-stack-lg">Our support team is available Monday to Friday, 9am - 6pm WAT.</p>
+<div class="space-y-stack-md mb-stack-lg">
+<div class="flex items-start gap-stack-md">
+<span class="material-symbols-outlined text-primary mt-1">location_on</span>
+<div>
+<h4 class="font-label-md text-on-surface">Lagos Office</h4>
+<p class="font-body-md text-on-surface-variant">42 Marina Road, Lagos Island<br/>Lagos State, Nigeria</p>
+</div>
+</div>
+<div class="flex items-center gap-stack-md">
+<span class="material-symbols-outlined text-primary">mail</span>
+<div>
+<h4 class="font-label-md text-on-surface">Email Support</h4>
+<p class="font-body-md text-on-surface-variant">support@assurra.com</p>
+</div>
+</div>
+</div>
+<!-- Map Placeholder -->
+<div class="flex-grow min-h-[250px] rounded-xl overflow-hidden border border-[#E8E6D9] relative" data-alt="A stylized, clean digital map of Lagos Island, Nigeria. The map uses a light, warm minimalist color palette featuring soft cream backgrounds, subtle green roads, and muted terrain features, reflecting the Assurra brand aesthetic. A distinct, elegant marker indicates a location on Marina Road." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuARiSfzlu9_ZN2bN1o41p4b1cl8zhCK4Xii0vU14HQ4oHoMGYtGJF65FAJ-jjXMRXU7VYBDHY7264ZMIjnKOUbxo8Y_N6XHDWJczLdgorsw10LbNKf8hqG71uNKM2CRlYAHcCWIXiE_63_9rboxfedKUjFi2gYihJc2tL9oMnQpGQv_fZrHk7ip1JZ7h0A1EWe8awTfq594f4O_uE6APgyX9UXYeHbKhkZPsIocAEo-BwUZ8vvfDPhdhQ')">
+<div class="absolute inset-0 bg-primary/5 hover:bg-transparent transition-colors"></div>
+</div>
+</div>
+<!-- Contact Form -->
+<div class="bg-surface-container-lowest rounded-xl p-stack-lg shadow-[0_10px_30px_rgba(0,33,6,0.06)] border border-[#E8E6D9]">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-stack-md">Send a Message</h3>
+<form class="space-y-stack-md">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+<div class="flex flex-col">
+<label class="font-label-sm text-label-sm text-on-surface mb-2 font-bold">First Name</label>
+<input class="bg-[#F2F0E4] border-none text-on-surface font-body-md rounded-lg p-3 focus:ring-2 focus:ring-primary transition-all" type="text"/>
+</div>
+<div class="flex flex-col">
+<label class="font-label-sm text-label-sm text-on-surface mb-2 font-bold">Last Name</label>
+<input class="bg-[#F2F0E4] border-none text-on-surface font-body-md rounded-lg p-3 focus:ring-2 focus:ring-primary transition-all" type="text"/>
+</div>
+</div>
+<div class="flex flex-col">
+<label class="font-label-sm text-label-sm text-on-surface mb-2 font-bold">Email Address</label>
+<input class="bg-[#F2F0E4] border-none text-on-surface font-body-md rounded-lg p-3 focus:ring-2 focus:ring-primary transition-all" type="email"/>
+</div>
+<div class="flex flex-col">
+<label class="font-label-sm text-label-sm text-on-surface mb-2 font-bold">Category</label>
+<select class="bg-[#F2F0E4] border-none text-on-surface font-body-md rounded-lg p-3 focus:ring-2 focus:ring-primary transition-all">
+<option>General Inquiry</option>
+<option>Dispute Support</option>
+<option>Technical Issue</option>
+</select>
+</div>
+<div class="flex flex-col">
+<label class="font-label-sm text-label-sm text-on-surface mb-2 font-bold">Message</label>
+<textarea class="bg-[#F2F0E4] border-none text-on-surface font-body-md rounded-lg p-3 focus:ring-2 focus:ring-primary transition-all resize-none" rows="4"></textarea>
+</div>
+<button class="w-full bg-primary text-on-primary py-4 rounded-xl font-label-md hover:bg-on-secondary-fixed-variant transition-colors mt-stack-sm" type="button">Submit Request</button>
+</form>
+</div>
+</section>
+</main>
+<!-- Footer (Shared Component) -->
+<footer class="w-full mt-stack-lg bg-surface-container-highest dark:bg-inverse-surface border-t-0">
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-stack-lg px-8 py-section-padding max-w-container-max mx-auto">
+<div class="col-span-2 lg:col-span-2">
+<div class="font-headline-sm text-headline-sm text-on-surface dark:text-inverse-on-surface mb-stack-sm">Assurra</div>
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant max-w-xs mt-4">Secure escrow services bridging trust for Nigerian merchants and consumers.</p>
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant mt-stack-lg text-sm">© 2024 Assurra Escrow. Licensed and regulated by the Central Bank of Nigeria (CBN). All rights reserved.</p>
+</div>
+<div class="flex flex-col space-y-3">
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-body-md" href="#">Services</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-body-md" href="#">How It Works</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-body-md" href="#">Pricing</a>
+</div>
+<div class="flex flex-col space-y-3">
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-body-md" href="#">For Merchants</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-body-md" href="#">For Customers</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-body-md" href="#">Developers</a>
+</div>
+<div class="flex flex-col space-y-3 lg:col-span-2">
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-body-md" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-body-md" href="#">Terms of Service</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors font-body-md" href="#">Security</a>
+<a class="text-on-surface dark:text-inverse-on-surface font-semibold hover:text-primary transition-colors font-body-md" href="#">Contact Us</a>
+</div>
+</div>
+</footer>
+<!-- Floating Chat Bubble -->
+<div class="fixed bottom-8 right-8 z-50">
+<button class="w-14 h-14 bg-primary text-on-primary rounded-full shadow-[0_10px_30px_rgba(0,104,29,0.3)] flex items-center justify-center hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-2xl">chat</span>
+</button>
+</div>
+</body></html>

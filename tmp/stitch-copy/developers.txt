@@ -1,0 +1,80 @@
+Assurra Developer Hub
+GETTING STARTED
+Quickstart
+Authentication
+Sandbox Testing
+MERCHANT API
+Onboarding
+Escrow Lifecycle
+Disputes
+INTEGRATIONS
+Webhooks
+Interswitch PSP
+SDKs
+Assurra API
+Build secure, white-label escrow workflows with our API-first gateway. All requests are routed through
+/api/v1/
+, providing Naira-native settlement and seamless Interswitch PSP integration for Nigerian commerce.
+Authentication
+JWT Bearer
+Standard for customer and merchant session-based operations. Include in the
+Authorization
+header.
+X-API-Key
+Available for verified merchants after KYC completion. Ideal for server-to-server automation.
+Client Libraries
+javascript
+Node.js
+Official Node.js wrapper for the Assurra API.
+View Docs
+phone_iphone
+iOS
+Swift SDK for seamless mobile integration.
+View Docs
+android
+Android
+Kotlin SDK for native Android applications.
+View Docs
+Escrow Lifecycle
+Initialize and manage escrow transactions. All write operations require an
+X-Idempotency-Key
+to prevent duplicate processing.
+POST /escrow
+curl
+-X POST https://api.assurra.com/api/v1/escrow \
+-H
+"X-API-Key: your_key_here"
+-H
+"X-Idempotency-Key: "
+$(uuidgen) \
+-d
+'{
+"amount": 75000,
+"currency": "NGN",
+"merchant_ref": "ORD-102",
+"callback_url": "https://your-site.com/webhook"
+}'
+POST /escrow/{ref}/ship
+Update status to 'shipped' with trackingNumber.
+POST /escrow/{ref}/confirm
+Buyer confirmation to release funds to merchant.
+POST /escrow/{ref}/dispute
+Initiate a dispute resolution process for a specific escrow transaction.
+Webhooks &amp; Responses
+Standard Response Envelope
+"success":
+true
+"message":
+"Operation successful"
+"data": { ... },
+"timestamp":
+"2024-05-20T12:00:00Z"
+Webhook Retries
+We use HMAC-SHA256 signing for security. If your server is down, we retry at: 1m, 5m, 30m, 2h, and 24h.
+HMAC-SHA256
+Sandbox Available
+© 2024 Assurra Escrow. Licensed and regulated by the Central Bank of Nigeria (CBN). All rights reserved.
+Privacy Policy
+Terms of Service
+Security
+Contact Us

@@ -1,0 +1,28 @@
+Terms of Service - Assurra
+close
+Terms of Service
+Last Updated: October 24, 2024
+search
+01.
+Introduction
+Welcome to Assurra. These Terms of Service govern your access to and use of our escrow platform, designed to provide secure, transparent, and culturally resonant financial bridging for high-stakes transactions.
+By accessing or using Assurra, you agree to be bound by these terms. If you disagree with any part of the terms, you may not access the service.
+02.
+Escrow Agreement
+Assurra acts strictly as a neutral escrow agent, holding funds securely until predefined conditions of a transaction are met. We do not take ownership of the goods or funds in transit.
+Funds are released only upon verifiable confirmation from both buyer and seller.
+Timeline strictures must be adhered to as per the individual transaction contract.
+Important Notice
+Failure to respond to release requests within 72 hours may result in automatic disbursement of funds to the opposing party, barring an active dispute.
+03.
+Platform Fees
+We maintain transparent pricing with a standard 1.5% fee structure. Fees are calculated as a percentage of the total transaction volume and are deducted prior to final disbursement unless otherwise agreed by both parties.
+04.
+Dispute Resolution
+In the event of a disagreement, funds will be frozen in the escrow account. Both parties must submit compelling evidence to our resolution center. We operate with a strict 48-hour resolution target once all evidence is received.
+05.
+KYC/AML Requirements
+To ensure a secure environment and comply with international financial regulations, all users are subject to Know Your Customer (KYC) and Anti-Money Laundering (AML) checks. Transactions may be delayed or cancelled if required verification documents are not provided.
+06.
+Limitation of Liability
+Assurra shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of or inability to use the service. Our maximum liability in any circumstance is limited to the fees paid for the specific transaction in dispute.

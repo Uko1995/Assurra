@@ -1,0 +1,59 @@
+How It Works - Assurra Escrow
+Trust,
+Secured.
+Transactions,
+Simplified.
+Discover the four simple steps to flawless, risk-free transactions with Assurra Escrow. We bridge the gap between intent and fulfillment.
+Create Escrow
+Initiate the transaction via our dashboard or API. Every escrow is assigned a unique reference ID (e.g.,
+TXN-2024-82930411
+). API users can utilize idempotency keys to prevent duplicate transactions.
+Status: INITIATED
+Payment
+The customer receives a secure Interswitch payment link. Funds are held in our CBN-regulated account until the transaction is complete.
+Status: FUNDED
+Notification
+Once payment is verified, the merchant is instantly notified via email, SMS, and webhook to begin fulfillment.
+Status: MERCHANT_NOTIFIED
+Shipment
+The merchant ships the item and uploads the tracking number to the Assurra portal, providing transparency for the buyer.
+Status: SHIPPED
+Delivery &amp; Inspection
+Merchant marks the order as delivered. This triggers a 72-hour inspection window for the customer to verify the product quality.
+Status: DELIVERED
+Confirmation
+The customer confirms receipt manually, or the system automatically releases funds after the 72-hour window expires.
+Status: CONFIRMED
+Status: AUTO_RELEASED
+Payout
+Funds are released to the merchant's verified Nigerian bank account in under 24 hours. Transaction complete.
+Status: RELEASED
+Lifecycle Notes
+cancel
+Cancellation
+Unfunded escrows are automatically cancelled after 24 hours with no fees incurred by either party.
+gavel
+Dispute Window
+Customers can raise a dispute within the 72h inspection window. We target a 48h resolution with evidence-based mediation.
+payments
+Transparent Fees
+A flat 1.5% fee applies. Customers pay the product price + fee; merchants receive the net amount instantly upon release.
+Resolution Center
+Fair &amp; Transparent Dispute Handling
+We understand that sometimes things don't go as planned. Our dedicated Resolution Center is designed to handle disagreements swiftly, fairly, and with total transparency, rooted in Nigerian regulatory frameworks.
+gavel
+Neutral, CBN-compliant mediation process.
+history
+Comprehensive audit trail of all communications and agreements.
+forum
+Direct, moderated communication channels to resolve issues amiably.
+Learn about Mediation
+© 2024 Assurra Escrow. Licensed and regulated by the Central Bank of Nigeria (CBN). All rights reserved.
+Product
+Solutions
+Legal
+Privacy Policy
+Terms of Service
+Security
+Support
+Contact Us

@@ -1,0 +1,37 @@
+Assurra Escrow - Services
+Secure Transactions
+At Every Scale
+From independent freelancers to enterprise e-commerce platforms, Assurra provides an impenetrable layer of trust for all your business dealings in Nigeria and beyond.
+person
+Personal Escrow
+Built with a focus on P2P safety, buyer protection, and trust for one-off sales. Securely buy and sell goods with individuals, with funds held safely until both parties are satisfied.
+Explore Personal
+storefront
+Business Escrow
+Comprehensive B2B services featuring merchant payouts after KYC, and bulk transaction support. Protect your business capital and ensure vendors deliver exactly what was promised.
+Explore Business
+checklist
+radio_button_checked
+radio_button_unchecked
+Milestone Payments
+Ensures the release of funds as project phases are completed and approved. Break down large payments into manageable, verifiable stages for long-term projects and construction.
+Explore Milestones
+extension
+E-commerce Plugins
+Seamless integration with platforms like WooCommerce and Shopify via our API. Integrate Assurra directly into your checkout flow for instant trust scaling.
+View Integrations
+Technical Truths
+Built on a robust, secure infrastructure designed to handle transactions with absolute reliability.
+Interswitch Naira Payments
+Fully integrated with Interswitch for secure, instant Naira deposits and payouts across all major Nigerian banks.
+notifications_active
+Automated Notifications
+Real-time event-driven notifications keep all parties instantly updated via email, SMS, and in-app alerts.
+webhook
+HMAC Webhooks
+Secure, verified API webhooks using HMAC signatures to ensure safe data transmission between our servers and your platform.
+© 2024 Assurra Escrow. Licensed and regulated by the Central Bank of Nigeria (CBN). All rights reserved.
+Privacy Policy
+Terms of Service
+Security
+Contact Us

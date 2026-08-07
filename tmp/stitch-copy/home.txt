@@ -1,0 +1,83 @@
+Assurra Escrow - Secure Transactions
+Escrow that works the way
+African commerce works.
+Secure your naira payments in a neutral vault. Buyers are protected until delivery. Sellers are guaranteed payment upon completion.
+Create a free escrow
+Become a merchant
+CBN Regulated
+Bank-Grade Security
+Transaction Secured
+₦2,500,000.00
+Bank-grade encryption
+48-hour dispute SLA
+Naira-native
+Nigerian bank payouts
+Built for slow networks
+The Middle Ground for Digital Commerce
+Bridging the trust gap between buyers and sellers in Nigeria.
+Buyer Risk
+• Seller ghosting after payment
+• Receiving the wrong item
+• Counterfeit goods
+The neutral vault securing funds until both parties are satisfied.
+Seller Risk
+• Fraudulent chargebacks
+• Buyers with no intent to pay
+• Lack of trust limits sales
+From agreement to payout in 7 clear steps.
+Create
+Pay
+Interswitch
+Notified
+Ship
+Delivered
+72h window
+Confirm
+Payout
+&lt;24h
+View full lifecycle
+Who is Assurra for?
+Merchants
+Simple KYC onboarding
+Instant funded alerts
+Transparent 1.5% fee
+Customers
+Safe online payments
+Objective dispute resolution
+Guaranteed refunds for non-delivery
+Clean /api/v1 architecture
+JWT auth &amp; Webhooks
+Fully functional sandbox
+The Proof is in the Protocol
+1.5%
+Flat transaction fee (capped)
+₦1,000
+Minimum transaction size
+24h
+Auto-cancel for unfunded escrows
+ac_unit
+Disputes freeze payouts immediately
+policy
+NDPR compliant data handling
+99.9%
+Platform uptime
+Simple, Transparent Pricing
+Example Calculation
+Product Value
+₦100,000
+Assurra Fee (1.5%)
+₦1,500
+Total Payout
+₦98,500
+View Full Pricing
+Let Assurra hold the money while you focus on the deal.
+For Developers
+© 2024 Assurra Escrow. Licensed and regulated by the Central Bank of Nigeria (CBN). All rights reserved.
+Product
+Solutions
+Legal
+Privacy Policy
+Terms of Service
+Security
+Support
+Contact Us

@@ -1,0 +1,95 @@
+Privacy Policy | Assurra
+arrow_back
+Back to Assurra
+Legal Documentation
+Privacy Policy
+At Assurra, we prioritize your security and transparency. This policy outlines how we collect, use, and protect your personal data in accordance with the Nigerian Data Protection Regulation (NDPR) and other applicable laws.
+update
+Last Updated: October 24, 2024
+schedule
+Effective Date: November 1, 2024
+Contents
+Introduction
+chevron_right
+Information We Collect
+chevron_right
+How We Use Your Data
+chevron_right
+Data Sharing &amp; Transfers
+chevron_right
+Data Security
+chevron_right
+Your NDPR Rights
+chevron_right
+Contact Us
+chevron_right
+download
+Download PDF Version
+waving_hand
+1. Introduction
+Welcome to Assurra Escrow ("Assurra", "we", "us", or "our"). We are committed to protecting your personal information and your right to privacy. If you have any questions or concerns about this privacy notice, or our practices with regards to your personal information, please contact us at privacy@assurra.com.
+When you visit our website and use our escrow services, you trust us with your personal information. We take your privacy very seriously. In this privacy notice, we seek to explain to you in the clearest way possible what information we collect, how we use it, and what rights you have in relation to it.
+TL;DR:
+We only collect the data necessary to securely facilitate your escrow transactions and comply with financial regulations. We do not sell your data to third parties.
+dataset
+2. Information We Collect
+We collect personal information that you voluntarily provide to us when you register on the platform, express an interest in obtaining information about us or our products and services, when you participate in activities on the platform, or otherwise when you contact us.
+Personal Information Provided by You
+Identity Data:
+First name, last name, date of birth, Government-issued ID (NIN, BVN, or International Passport) for KYC purposes.
+Contact Data:
+Email address, phone number, billing address, and delivery address.
+Financial Data:
+Bank account details required to process escrow disbursements. (Note: We use secure third-party payment processors; we do not store full card details).
+Transaction Data:
+Details about payments to and from you, and other details of products or services you have purchased or sold through our platform.
+Information Automatically Collected
+We automatically collect certain information when you visit, use, or navigate the platform. This information does not reveal your specific identity but may include device and usage information, such as your IP address, browser and device characteristics, operating system, and information about how and when you use our platform.
+settings_suggest
+3. How We Use Your Data
+We process your personal information for a variety of legitimate business purposes, including:
+account_balance_wallet
+Service Provision &amp; Payments
+To facilitate account creation, authenticate users, process payments, and securely manage your escrow transactions.
+gavel
+Compliance (KYC/AML)
+To verify identities and comply with legal obligations, including Anti-Money Laundering (AML) checks required by the CBN.
+support_agent
+Customer Support
+To respond to your inquiries and solve any potential issues you might have with the use of our services.
+security
+Fraud Prevention
+To protect our platform and prevent fraudulent transactions, continuously monitoring for suspicious activity.
+share
+4. Data Sharing &amp; Transfers
+We may share your information with third parties only in the ways that are described in this privacy notice. We do not sell your personal information to third parties.
+Payment Service Providers (PSPs):
+We share transaction data securely with licensed PSPs, such as Interswitch, to process your payments and disbursements.
+Regulatory Authorities:
+We may disclose your information where required to comply with CBN regulations, court orders, or legal processes.
+KYC Partners:
+We share identity verification data with authorized KYC providers to validate your NIN, BVN, or other ID documents.
+KYC Retention
+As required by financial regulations, we retain your KYC and transaction data for a minimum of five (5) years after your account is closed or the last transaction is completed, for compliance and audit purposes.
+policy
+5. Your NDPR Rights
+In accordance with the Nigerian Data Protection Regulation (NDPR) and other applicable global standards, you possess specific rights regarding your personal data:
+Right to Information &amp; Access
+You have the right to request a copy of the personal data we hold about you.
+Right to Rectification
+You have the right to request that we correct any information you believe is inaccurate or complete information you believe is incomplete.
+Right to Erasure ('Right to be Forgotten')
+You have the right to request that we erase your personal data, under certain conditions, provided it does not conflict with our regulatory compliance obligations regarding financial transaction records.
+Right to Data Portability
+You have the right to request that we transfer the data that we have collected to another organization, or directly to you, under certain conditions.
+To exercise any of these rights, please contact our Data Protection Officer at
+dpo@assurra.com
+. We will respond to your request within 30 days.
+© 2024 Assurra Escrow. Licensed and regulated by the Central Bank of Nigeria (CBN). All rights reserved.
+Product
+Solutions
+Legal &amp; Support
+Privacy Policy
+Terms of Service
+Security
+Contact Us

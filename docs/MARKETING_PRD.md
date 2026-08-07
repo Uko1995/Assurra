@@ -440,40 +440,7 @@ Assurra should feel like a bank you can trust and a neighbor you can talk to.
 - **African-first.** Local payment cues, naira formatting, Lagos time, data-saver pride.
 - **Professional warmth.** Green means progress; red is reserved for loss/error states.
 
-### 9.2 Colors
 
-Use the approved design-system palette exactly. The palette is derived from the Assurra logo greens (`#0B4011`, `#083B0E`, `#06350B`, `#7ECE6C`, `#76C766`) plus warm near-white backgrounds:
-
-**Light mode:**
-- Background: `#F6F8F6`
-- Surface: `#FFFFFF`
-- Primary: `#11832B`
-- Primary strong: `#0D6B21`
-- Primary soft: `#E8F3EA`
-- Primary deep (brand sections): `#0A3D16`
-- Success: `#15803D`
-- Danger: `#B91C1C`
-- Warning: `#B45309`
-- Info: `#1D4ED8`
-- Text: `#0F2E1A`
-- Text muted: `#4A5D4E`
-- Text faint: `#6B7D6F`
-- Border: `#DEE6DE`
-
-**Dark mode:**
-- Background: `#0A0F0B`
-- Surface: `#111812`
-- Border: `#1F2920`
-- Foreground: `#E6F0E8`
-- Muted: `#9DB3A1`
-- Faint: `#6F8573`
-- Primary: `#3CC95A`
-- Primary strong: `#54D86F`
-- Primary soft: `#0F2918`
-- Primary deep: `#062B10`
-- Success: `#4ADE80`, Danger: `#F87171`, Warning: `#FBBF24`, Info: `#60A5FA`
-
-### 9.3 Typography
 
 - **Body font:** Inter Variable, subsetted for Latin.
 - **Display font:** Fraunces (serif) for `h1`–`h2` headings and hero numerals — gives Assurra an editorial, hand-set feel distinct from typical SaaS templates.
@@ -484,12 +451,7 @@ Use the approved design-system palette exactly. The palette is derived from the 
 
 ### 9.4 Spacing & Layout
 
-- 4px base grid.
-- Touch targets minimum 44 × 44 px.
-- Container max-widths: 480 mobile, 720 tablet, 1200 desktop.
-- Breakpoints: 480, 768, 1024, 1280 px.
 
-### 9.5 Animation
 
 - **Default:** CSS transitions only.
 - **Motion library:** Lazy-loaded Motion (`m`) for trust-critical moments only: escrow timeline state transitions, pricing calculator reveal, data-saver toggle.

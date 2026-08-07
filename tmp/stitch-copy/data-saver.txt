@@ -1,0 +1,24 @@
+Assurra - Data Saver Mode
+speed
+Fast and lightweight by design
+Data Saver Mode
+Built for Nigerian connectivity. Assurra ensures high-stakes transactions succeed even on 2G/3G networks, optimizing every byte for seamless reliability.
+Low-Data Mode
+Strips rich media, prioritizing core transaction data.
+compress
+80%
+Less Data Consumed
+Optimized payloads ensure essential data flows instantly, saving bandwidth.
+offline_bolt
+SMS
+Offline Tracking Fallback
+Lose connection? We seamlessly transition updates to SMS so you never miss a step.
+network_check
+&lt;2s
+Load Time on 3G
+Engineered for speed, our core app shell loads almost instantly even on weak signals.
+Privacy Policy
+Terms of Service
+Security
+Contact Us
+© 2024 Assurra Escrow. Licensed and regulated by the Central Bank of Nigeria (CBN). All rights reserved.

@@ -1,0 +1,32 @@
+Assurra Escrow - Pricing
+Transparent Pricing, Zero Surprises.
+Secure your high-stakes transactions with a simple, transparent fee structure. Our default escrow fee is 1.5% (configurable for enterprise partners), with a minimum transaction amount of ₦1,000. No hidden FX, just Naira-native security.
+calculate
+Interactive Fee Calculator
+Transaction Amount (₦)
+₦ 500,000
+₦1k
+₦10M+
+Customer Pays (Total)
+₦ 507,500
+Product Amount + 1.5% Fee
+Merchant Receives (Net)
+₦ 492,500
+Product Amount - 1.5% Fee
+Fee Policy
+Non-refundable unless Assurra is at fault.
+₦0 fee for unfunded escrows cancelled within 24h.
+Configurable fee structures for high-volume merchants.
+Naira-native. No hidden FX fees.
+shield_lock
+Ready to secure your funds?
+Join thousands of Nigerians trading safely with Assurra Escrow.
+Start a Transaction
+© 2024 Assurra Escrow. Licensed and regulated by the Central Bank of Nigeria (CBN). All rights reserved.
+Product
+Solutions
+Legal &amp; Support
+Privacy Policy
+Terms of Service
+Security
+Contact Us

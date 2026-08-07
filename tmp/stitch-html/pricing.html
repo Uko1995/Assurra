@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Assurra Escrow - Pricing</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-variant": "#dce5d9",
+                      "tertiary-fixed-dim": "#c7c7c2",
+                      "inverse-primary": "#75dd78",
+                      "on-secondary-fixed-variant": "#1f5125",
+                      "on-surface": "#151d16",
+                      "on-secondary-fixed": "#002106",
+                      "surface-container-high": "#e2ebdf",
+                      "surface-container": "#e7f0e4",
+                      "on-primary-container": "#e2ffdb",
+                      "on-primary-fixed": "#002205",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-container": "#f8f7f2",
+                      "background": "#f3fcf0",
+                      "on-secondary-container": "#3e6f40",
+                      "surface-dim": "#d3ddd1",
+                      "on-surface-variant": "#3f4a3d",
+                      "outline": "#6f7a6b",
+                      "primary-container": "#11832b",
+                      "error": "#ba1a1a",
+                      "inverse-surface": "#2a322b",
+                      "on-error": "#ffffff",
+                      "tertiary-fixed": "#e3e3de",
+                      "on-secondary": "#ffffff",
+                      "on-primary-fixed-variant": "#005316",
+                      "inverse-on-surface": "#eaf3e7",
+                      "secondary-fixed-dim": "#9dd49b",
+                      "surface-bright": "#f3fcf0",
+                      "primary-fixed-dim": "#75dd78",
+                      "on-background": "#151d16",
+                      "secondary-fixed": "#b9f1b6",
+                      "primary": "#00681d",
+                      "surface-tint": "#006e20",
+                      "outline-variant": "#becab9",
+                      "surface": "#f3fcf0",
+                      "primary-fixed": "#91fa91",
+                      "on-tertiary-fixed-variant": "#464744",
+                      "secondary": "#38693b",
+                      "surface-container-highest": "#dce5d9",
+                      "on-primary": "#ffffff",
+                      "surface-container-low": "#edf6ea",
+                      "tertiary": "#585955",
+                      "tertiary-container": "#71716d",
+                      "secondary-container": "#b9f1b6",
+                      "on-error-container": "#93000a",
+                      "on-tertiary-fixed": "#1b1c19",
+                      "error-container": "#ffdad6",
+                      "surface-container-lowest": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-mobile": "16px",
+                      "stack-md": "16px",
+                      "container-max": "1280px",
+                      "section-padding": "80px",
+                      "gutter": "24px",
+                      "stack-sm": "8px",
+                      "stack-lg": "32px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "headline-md": [
+                              "Playfair Display"
+                      ],
+                      "headline-sm": [
+                              "Playfair Display"
+                      ],
+                      "label-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "display-lg": [
+                              "Playfair Display"
+                      ],
+                      "label-sm": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "display-lg-mobile": [
+                              "Playfair Display"
+                      ],
+                      "body-md": [
+                              "Plus Jakarta Sans"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-sm": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "56px",
+                              {
+                                      "lineHeight": "64px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "44px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              },
+              boxShadow: {
+                  'card-base': '0px 4px 20px rgba(0, 33, 6, 0.04)',
+                  'card-elevated': '0px 10px 30px rgba(0, 33, 6, 0.08)',
+              }
+            },
+          }
+        }
+    </script>
+<style>
+        /* Traditional textile pattern overlay */
+        .textile-pattern {
+            background-image: radial-gradient(circle at 2px 2px, rgba(0, 33, 6, 0.03) 1px, transparent 0);
+            background-size: 16px 16px;
+        }
+        
+        /* Custom range slider styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #00681d;
+            cursor: pointer;
+            margin-top: -10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: transform 0.1s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #dce5d9;
+            border-radius: 2px;
+        }
+        
+        /* Glassmorphism for TopNav */
+        .glass-nav {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col relative textile-pattern">
+<!-- TopNavBar Shared Component -->
+<nav class="w-full sticky top-0 z-50 bg-surface/90 dark:bg-surface-dim/90 backdrop-blur-md shadow-sm dark:shadow-none glass-nav">
+<div class="flex justify-between items-center px-8 py-4 max-w-container-max mx-auto">
+<!-- Brand -->
+<a class="font-headline-sm text-headline-sm text-primary dark:text-inverse-primary tracking-tight" href="#">
+                Assurra
+            </a>
+<!-- Links -->
+<div class="hidden md:flex items-center gap-gutter">
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">Services</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">How It Works</a>
+<a class="text-primary dark:text-inverse-primary font-bold border-b-2 border-primary pb-1 font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">Pricing</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">For Merchants</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">For Customers</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">Developers</a>
+</div>
+<!-- Trailing Action -->
+<button class="bg-primary text-on-primary font-label-md text-label-md px-8 py-3 rounded-lg hover:bg-surface-tint transition-colors duration-200">
+                Get Started
+            </button>
+</div>
+</nav>
+<main class="flex-grow w-full max-w-container-max mx-auto px-8 py-section-padding">
+<!-- Hero Section -->
+<section class="text-center max-w-3xl mx-auto mb-stack-lg">
+<h1 class="font-display-lg text-display-lg text-on-background mb-stack-sm">Transparent Pricing, Zero Surprises.</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Secure your high-stakes transactions with a simple, transparent fee structure. Our default escrow fee is 1.5% (configurable for enterprise partners), with a minimum transaction amount of ₦1,000. No hidden FX, just Naira-native security.</p>
+</section>
+<!-- Fee Calculator (Bento Grid Style) -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-gutter mb-section-padding">
+<div class="lg:col-span-8 bg-surface-container-lowest rounded-xl border border-surface-variant shadow-card-base p-8 relative overflow-hidden group hover:shadow-card-elevated transition-shadow duration-300">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary-container/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+<h2 class="font-headline-sm text-headline-sm text-on-background mb-stack-md flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" data-weight="fill" style="font-variation-settings: 'FILL' 1;">calculate</span>
+                    Interactive Fee Calculator
+                </h2>
+<div class="mb-stack-lg">
+<div class="flex justify-between items-end mb-2">
+<label class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Transaction Amount (₦)</label>
+<span class="font-headline-md text-headline-md text-primary font-bold" id="sliderValueDisplay">₦ 500,000</span>
+</div>
+<div class="relative pt-4 pb-8">
+<input class="w-full" id="amountSlider" max="10000000" min="1000" step="10000" type="range" value="500000"/>
+<div class="flex justify-between mt-2 font-label-sm text-label-sm text-tertiary">
+<span>₦1k</span>
+<span>₦10M+</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md"><div class="bg-surface-container-low p-6 rounded-lg border border-surface-variant/50 flex flex-col justify-between"><div class="mb-4"><h3 class="font-label-md text-label-md text-on-surface-variant mb-2">Customer Pays (Total)</h3><div class="font-headline-sm text-headline-sm text-on-background" id="customerTotal">₦ 507,500</div><p class="text-xs text-tertiary mt-1">Product Amount + 1.5% Fee</p></div><div class="pt-4 border-t border-surface-variant/30"><h3 class="font-label-md text-label-md text-on-surface-variant mb-2">Merchant Receives (Net)</h3><div class="font-headline-sm text-headline-sm text-primary" id="merchantNet">₦ 492,500</div><p class="text-xs text-tertiary mt-1">Product Amount - 1.5% Fee</p></div></div><div class="bg-primary/5 p-6 rounded-lg border border-primary/20 flex flex-col gap-4"><h3 class="font-label-md text-label-md text-primary uppercase tracking-wider">Fee Policy</h3><ul class="flex flex-col gap-3"><li class="flex items-start gap-2 text-sm text-on-surface-variant"><span class="material-symbols-outlined text-primary text-lg">check_circle</span><span>Non-refundable unless Assurra is at fault.</span></li><li class="flex items-start gap-2 text-sm text-on-surface-variant"><span class="material-symbols-outlined text-primary text-lg">check_circle</span><span>₦0 fee for unfunded escrows cancelled within 24h.</span></li><li class="flex items-start gap-2 text-sm text-on-surface-variant"><span class="material-symbols-outlined text-primary text-lg">check_circle</span><span>Configurable fee structures for high-volume merchants.</span></li></ul><div class="mt-auto pt-4"><p class="text-xs font-bold text-primary">Naira-native. No hidden FX fees.</p></div></div></div>
+</div>
+<!-- CTA Side Card -->
+<div class="lg:col-span-4 bg-primary text-on-primary rounded-xl shadow-card-base p-8 flex flex-col justify-center relative overflow-hidden">
+<div class="absolute bottom-0 right-0 opacity-10">
+<span class="material-symbols-outlined text-[120px]" data-weight="fill" style="font-variation-settings: 'FILL' 1;">shield_lock</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm mb-stack-sm relative z-10">Ready to secure your funds?</h3>
+<p class="font-body-md text-body-md text-on-primary/80 mb-stack-lg relative z-10">Join thousands of Nigerians trading safely with Assurra Escrow.</p>
+<button class="bg-surface-container-lowest text-primary font-label-md text-label-md px-6 py-4 rounded-lg w-full hover:bg-surface-container-low transition-colors duration-200 shadow-md relative z-10 flex justify-center items-center gap-2">
+                    Start a Transaction
+                    <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</section>
+</main>
+<!-- Footer Shared Component -->
+<footer class="w-full mt-stack-lg bg-surface-container-highest dark:bg-inverse-surface flat no shadows">
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-stack-lg px-8 py-section-padding max-w-container-max mx-auto">
+<div class="col-span-2 lg:col-span-2">
+<div class="font-headline-sm text-headline-sm text-on-surface dark:text-inverse-on-surface mb-stack-md">
+                    Assurra
+                </div>
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant mb-stack-md text-sm pr-4">
+                    © 2024 Assurra Escrow. Licensed and regulated by the Central Bank of Nigeria (CBN). All rights reserved.
+                </p>
+</div>
+<div class="col-span-1">
+<h4 class="font-label-md text-label-md text-on-surface dark:text-inverse-on-surface mb-stack-sm">Product</h4>
+<div class="flex flex-col gap-2">
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Services</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">How It Works</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Pricing</a>
+</div>
+</div>
+<div class="col-span-1">
+<h4 class="font-label-md text-label-md text-on-surface dark:text-inverse-on-surface mb-stack-sm">Solutions</h4>
+<div class="flex flex-col gap-2">
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">For Merchants</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">For Customers</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Developers</a>
+</div>
+</div>
+<div class="col-span-2 md:col-span-4 lg:col-span-2">
+<h4 class="font-label-md text-label-md text-on-surface dark:text-inverse-on-surface mb-stack-sm">Legal &amp; Support</h4>
+<div class="flex flex-col gap-2">
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Privacy Policy</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Terms of Service</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Security</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Contact Us</a>
+</div>
+</div>
+</div>
+</footer>
+<script>
+        // Simple Calculator Logic
+        const slider = document.getElementById('amountSlider');
+        const displayValue = document.getElementById('sliderValueDisplay');
+        const standardFee = document.getElementById('standardFeeResult');
+        
+        const formatter = new Intl.NumberFormat('en-NG', {
+            style: 'currency',
+            currency: 'NGN',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        });
+
+        slider.addEventListener('input', function() {
+            const val = parseInt(this.value);
+            displayValue.textContent = formatter.format(val);
+            
+            // Standard fee calculation (1.5%)
+            let fee = val * 0.015;
+            // Cap fee or min fee logic could go here if needed
+            standardFee.textContent = formatter.format(fee);
+            
+            // Optional: visual slider fill update
+            const percentage = ((this.value - this.min) / (this.max - this.min)) * 100;
+            this.style.background = `linear-gradient(to right, #00681d ${percentage}%, #dce5d9 ${percentage}%)`;
+        });
+        
+        // Init slider background
+        slider.dispatchEvent(new Event('input'));
+    </script>
+</body></html>

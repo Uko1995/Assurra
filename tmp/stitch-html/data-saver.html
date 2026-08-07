@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Assurra - Data Saver Mode</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;family=Playfair+Display:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#dce5d9",
+                        "tertiary-fixed-dim": "#c7c7c2",
+                        "inverse-primary": "#75dd78",
+                        "on-secondary-fixed-variant": "#1f5125",
+                        "on-surface": "#151d16",
+                        "on-secondary-fixed": "#002106",
+                        "surface-container-high": "#e2ebdf",
+                        "surface-container": "#e7f0e4",
+                        "on-primary-container": "#e2ffdb",
+                        "on-primary-fixed": "#002205",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-container": "#f8f7f2",
+                        "background": "#f3fcf0",
+                        "on-secondary-container": "#3e6f40",
+                        "surface-dim": "#d3ddd1",
+                        "on-surface-variant": "#3f4a3d",
+                        "outline": "#6f7a6b",
+                        "primary-container": "#11832b",
+                        "error": "#ba1a1a",
+                        "inverse-surface": "#2a322b",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#e3e3de",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#005316",
+                        "inverse-on-surface": "#eaf3e7",
+                        "secondary-fixed-dim": "#9dd49b",
+                        "surface-bright": "#f3fcf0",
+                        "primary-fixed-dim": "#75dd78",
+                        "on-background": "#151d16",
+                        "secondary-fixed": "#b9f1b6",
+                        "primary": "#00681d",
+                        "surface-tint": "#006e20",
+                        "outline-variant": "#becab9",
+                        "surface": "#f3fcf0",
+                        "primary-fixed": "#91fa91",
+                        "on-tertiary-fixed-variant": "#464744",
+                        "secondary": "#38693b",
+                        "surface-container-highest": "#dce5d9",
+                        "on-primary": "#ffffff",
+                        "surface-container-low": "#edf6ea",
+                        "tertiary": "#585955",
+                        "tertiary-container": "#71716d",
+                        "secondary-container": "#b9f1b6",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#1b1c19",
+                        "error-container": "#ffdad6",
+                        "surface-container-lowest": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "stack-md": "16px",
+                        "container-max": "1280px",
+                        "section-padding": "80px",
+                        "gutter": "24px",
+                        "stack-sm": "8px",
+                        "stack-lg": "32px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Playfair Display"],
+                        "headline-sm": ["Playfair Display"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "display-lg": ["Playfair Display"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "display-lg-mobile": ["Playfair Display"],
+                        "body-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "headline-sm": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-lg": ["56px", { "lineHeight": "64px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "display-lg-mobile": ["36px", { "lineHeight": "44px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 20px rgba(0, 33, 6, 0.04);
+        }
+        .text-gradient {
+            background: linear-gradient(135deg, #00681d 0%, #38693b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .pattern-overlay {
+            background-image: url('data:image/svg+xml;utf8,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><path d="M20 0L40 20L20 40L0 20L20 0ZM20 4L4 20L20 36L36 20L20 4Z" fill="%2300681d" fill-opacity="0.03" fill-rule="evenodd"/></svg>');
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col antialiased relative">
+<!-- TopNavBar -->
+<nav class="w-full sticky top-0 z-50 bg-surface/90 dark:bg-surface-dim/90 backdrop-blur-md shadow-sm dark:shadow-none bg-surface/90 dark:bg-surface-dim/90">
+<div class="flex justify-between items-center px-8 py-4 max-w-container-max mx-auto">
+<div class="font-headline-sm text-headline-sm text-primary dark:text-inverse-primary tracking-tight">Assurra</div>
+<div class="hidden md:flex gap-8">
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">Services</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">How It Works</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">Pricing</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">For Merchants</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">For Customers</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-body-md text-body-md hover:text-primary dark:hover:text-primary-fixed transition-colors duration-200" href="#">Developers</a>
+</div>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-8 py-3 rounded-xl hover:bg-surface-tint transition-colors duration-200">
+                Get Started
+            </button>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow relative z-10">
+<div class="pattern-overlay absolute inset-0 pointer-events-none z-[-1]"></div>
+<!-- Hero Section -->
+<section class="max-w-container-max mx-auto px-8 py-section-padding">
+<div class="grid md:grid-cols-2 gap-stack-lg items-center">
+<div class="space-y-stack-md">
+<div class="inline-flex items-center gap-2 px-4 py-2 bg-surface-container-high rounded-full border border-surface-variant">
+<span class="material-symbols-outlined text-primary text-[18px]">speed</span>
+<span class="font-label-md text-label-md text-primary">Fast and lightweight by design</span>
+</div>
+<h1 class="font-display-lg text-display-lg text-on-surface">Data Saver Mode</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-lg">
+                        Built for Nigerian connectivity. Assurra ensures high-stakes transactions succeed even on 2G/3G networks, optimizing every byte for seamless reliability.
+                    </p>
+</div>
+<div class="relative rounded-2xl overflow-hidden h-[400px] shadow-lg border border-surface-variant bg-surface-container-lowest">
+<img class="object-cover w-full h-full absolute inset-0 z-0" data-alt="A clean, minimalist UI mockup showing a smartphone screen displaying a toggle switch labeled 'Low Data Mode' glowing in a deep emerald green. The background is a soft parchment cream with subtle geometric patterns reminiscent of traditional Nigerian textiles. Soft, diffused lighting creates a premium, high-end tech aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPJrn6pZqWkDHA_ugwMjyAJDpC2fuye_598w8MOLu8j-w4QB1CxdgYi5OMIkp1hhrvCMbKSMkErKQDloYFkHwp0fv9ZDivJTE4IQEzb0ttJVKDqKO8eZzDitpIazYWwduH_xDiLsFYnkN-3mY1Jey9Mcsosqgd2wIF2XecUWB4Hr7RWMs3LryepOlbO6EiDScoZRJNujYfEx0KarYRTgkY_5302Gb9uhF-XOJO8j4o9T1YU-4SP3Rz8g"/>
+<div class="absolute bottom-6 left-6 right-6 glass-panel rounded-xl p-6 z-10">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Low-Data Mode</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Strips rich media, prioritizing core transaction data.</p>
+</div>
+<!-- Toggle UI -->
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-14 h-7 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats & Features Grid -->
+<section class="bg-surface-container py-section-padding">
+<div class="max-w-container-max mx-auto px-8">
+<div class="grid md:grid-cols-3 gap-gutter">
+<!-- Stat Card 1 -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0_4px_20px_rgba(0,33,6,0.04)] border border-surface-variant">
+<span class="material-symbols-outlined text-primary text-[32px] mb-4">compress</span>
+<h4 class="font-headline-md text-headline-md text-primary mb-2">80%</h4>
+<p class="font-label-md text-label-md text-on-surface mb-2">Less Data Consumed</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Optimized payloads ensure essential data flows instantly, saving bandwidth.</p>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0_4px_20px_rgba(0,33,6,0.04)] border border-surface-variant">
+<span class="material-symbols-outlined text-primary text-[32px] mb-4">offline_bolt</span>
+<h4 class="font-headline-md text-headline-md text-primary mb-2">SMS</h4>
+<p class="font-label-md text-label-md text-on-surface mb-2">Offline Tracking Fallback</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Lose connection? We seamlessly transition updates to SMS so you never miss a step.</p>
+</div>
+<!-- Stat Card 3 -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0_4px_20px_rgba(0,33,6,0.04)] border border-surface-variant">
+<span class="material-symbols-outlined text-primary text-[32px] mb-4">network_check</span>
+<h4 class="font-headline-md text-headline-md text-primary mb-2">&lt;2s</h4>
+<p class="font-label-md text-label-md text-on-surface mb-2">Load Time on 3G</p>
+<p class="font-body-md text-body-md text-on-surface-variant">Engineered for speed, our core app shell loads almost instantly even on weak signals.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full mt-stack-lg bg-surface-container-highest dark:bg-inverse-surface flat no shadows">
+<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-stack-lg px-8 py-section-padding max-w-container-max mx-auto">
+<div class="col-span-full mb-8">
+<div class="font-headline-sm text-headline-sm text-on-surface dark:text-inverse-on-surface">Assurra</div>
+</div>
+<div class="flex flex-col gap-4">
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Services</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">How It Works</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Pricing</a>
+</div>
+<div class="flex flex-col gap-4">
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">For Merchants</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">For Customers</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Developers</a>
+</div>
+<div class="flex flex-col gap-4">
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Privacy Policy</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Terms of Service</a>
+</div>
+<div class="flex flex-col gap-4">
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Security</a>
+<a class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Contact Us</a>
+</div>
+<div class="col-span-full mt-12 pt-8 border-t border-outline-variant/30">
+<p class="font-body-md text-body-md text-on-surface-variant dark:text-outline-variant">© 2024 Assurra Escrow. Licensed and regulated by the Central Bank of Nigeria (CBN). All rights reserved.</p>
+</div>
+</div>
+</footer>
+</body></html>
