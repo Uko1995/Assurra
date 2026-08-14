@@ -38,6 +38,7 @@ build/
 .env.*.local
 
 ### Local Development Config (contains secrets) ###
+opencode.json
 application-local.yml
 application-dev.yml
 **/application-local.yml

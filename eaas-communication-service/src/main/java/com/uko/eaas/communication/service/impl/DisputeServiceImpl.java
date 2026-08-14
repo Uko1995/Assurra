@@ -3,6 +3,8 @@ package com.uko.eaas.communication.service.impl;
 import com.uko.eaas.communication.dto.*;
 import com.uko.eaas.communication.model.entity.Dispute;
 import com.uko.eaas.communication.model.entity.DisputeEvidence;
+import com.uko.eaas.communication.model.entity.DisputeResolutionApproval;
+import com.uko.eaas.communication.repository.DisputeResolutionApprovalRepository;
 import com.uko.eaas.communication.model.entity.DisputeMessage;
 import com.uko.eaas.communication.model.enums.DisputeStatus;
 import com.uko.eaas.communication.repository.DisputeEvidenceRepository;
@@ -21,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.LocalDateTime;
@@ -38,6 +41,7 @@ public class DisputeServiceImpl implements DisputeService {
     private final DisputeRepository disputeRepository;
     private final DisputeEvidenceRepository evidenceRepository;
     private final DisputeMessageRepository messageRepository;
+    private final DisputeResolutionApprovalRepository approvalRepository;
     private final StorageService storageService;
     private final NotificationService notificationService;
     private final com.uko.eaas.communication.service.AuditPublisher auditPublisher;
@@ -131,8 +135,8 @@ public class DisputeServiceImpl implements DisputeService {
     }
 
     @Override
-    public DisputeResponse  resolveDispute(String reference, ResolveDisputeRequest request, UUID resolvedBy) {
-        log.info("Resolving dispute: {} with status: {}", reference, request.getResolution());
+    public DisputeResponse resolveDispute(String reference, ResolveDisputeRequest request, UUID resolvedBy) {
+        log.info("Admin {} requesting resolution for dispute: {} with status: {}", resolvedBy, reference, request.getResolution());
 
         Dispute dispute = disputeRepository.findByReference(reference)
                 .orElseThrow(() -> new EntityNotFoundException("Dispute not found: " + reference));
@@ -142,6 +146,58 @@ public class DisputeServiceImpl implements DisputeService {
             return mapToResponse(dispute);
         }
 
+        BigDecimal threshold = new BigDecimal("10000000.00");
+        boolean requiresApproval = dispute.getAmountDisputed().compareTo(threshold) >= 0;
+
+        if (requiresApproval) {
+            DisputeResolutionApproval approval = DisputeResolutionApproval.builder()
+                    .escrowReference(dispute.getEscrowReference())
+                    .disputeId(dispute.getId())
+                    .requestedBy(resolvedBy)
+                    .requestedAt(LocalDateTime.now())
+                    .resolutionType(DisputeResolutionApproval.ResolutionType.valueOf(request.getResolution().name()))
+                    .reason(request.getResolutionNotes())
+                    .status(DisputeResolutionApproval.ApprovalStatus.PENDING)
+                    .build();
+            approvalRepository.save(approval);
+            log.info("Dispute {} resolution requires second approval (amount {} >= threshold {})", reference, dispute.getAmountDisputed(), threshold);
+            return mapToResponse(dispute);
+        }
+
+        executeResolution(dispute, request, resolvedBy);
+        return mapToResponse(dispute);
+    }
+
+    @Override
+    public DisputeResponse approveResolution(String reference, UUID approverId) {
+        log.info("Admin {} approving resolution for dispute: {}", approverId, reference);
+
+        Dispute dispute = disputeRepository.findByReference(reference)
+                .orElseThrow(() -> new EntityNotFoundException("Dispute not found: " + reference));
+
+        DisputeResolutionApproval approval = approvalRepository.findByDisputeIdAndStatus(dispute.getId(), DisputeResolutionApproval.ApprovalStatus.PENDING)
+                .orElseThrow(() -> new IllegalStateException("No pending resolution approval found for dispute: " + reference));
+
+        if (approval.getRequestedBy().equals(approverId)) {
+            throw new IllegalStateException("Requester cannot approve their own resolution request");
+        }
+
+        approval.setApprovedBy(approverId);
+        approval.setApprovedAt(LocalDateTime.now());
+        approval.setStatus(DisputeResolutionApproval.ApprovalStatus.APPROVED);
+        approvalRepository.save(approval);
+
+        ResolveDisputeRequest request = ResolveDisputeRequest.builder()
+                .resolution(DisputeStatus.valueOf(approval.getResolutionType().name()))
+                .resolutionAmount(dispute.getAmountDisputed())
+                .resolutionNotes(approval.getReason())
+                .build();
+
+        executeResolution(dispute, request, approverId);
+        return mapToResponse(dispute);
+    }
+
+    private void executeResolution(Dispute dispute, ResolveDisputeRequest request, UUID resolvedBy) {
         dispute.setStatus(request.getResolution());
         dispute.setResolutionAmount(request.getResolutionAmount());
         dispute.setResolutionNotes(request.getResolutionNotes());
@@ -153,24 +209,22 @@ public class DisputeServiceImpl implements DisputeService {
         dispute = disputeRepository.save(dispute);
 
         // Notify parties
-        notificationService.sendNotificationForEvent("dispute.resolved", dispute.getCustomerId().toString(), reference, null);
-        notificationService.sendNotificationForEvent("dispute.resolved", dispute.getMerchantId().toString(), reference, null);
+        notificationService.sendNotificationForEvent("dispute.resolved", dispute.getCustomerId().toString(), dispute.getReference(), null);
+        notificationService.sendNotificationForEvent("dispute.resolved", dispute.getMerchantId().toString(), dispute.getReference(), null);
 
         auditPublisher.publish(com.uko.eaas.communication.messaging.event.AuditEvent.builder()
                 .eventType("DISPUTE_RESOLVED")
                 .entityType("DISPUTE")
-                .entityId(reference)
+                .entityId(dispute.getReference())
                 .action("RESOLVE")
                 .performedBy(resolvedBy)
                 .performedByRole("ADMIN")
                 .metadata("{\"resolution\": \"" + request.getResolution() + "\", \"resolutionAmount\": " + request.getResolutionAmount() + "}")
                 .build());
 
-        log.info("Dispute {} resolved", reference);
+        log.info("Dispute {} resolved", dispute.getReference());
 
         finalizeEscrowIfNeeded(dispute, request.getResolution());
-
-        return mapToResponse(dispute);
     }
 
     @Override

@@ -43,7 +43,15 @@ public class AdminDisputeController {
             @Valid @RequestBody ResolveDisputeRequest request,
             @RequestHeader("X-User-Id") String resolvedBy) {
         DisputeResponse response = disputeService.resolveDispute(reference, request, UUID.fromString(resolvedBy));
-        return ResponseEntity.ok(ApiResponse.success("Dispute resolved successfully", response));
+        return ResponseEntity.ok(ApiResponse.success("Resolution request submitted", response));
+    }
+
+    @PutMapping("/{reference}/approve")
+    public ResponseEntity<ApiResponse<DisputeResponse>> approve(
+            @PathVariable String reference,
+            @RequestHeader("X-User-Id") String approverId) {
+        DisputeResponse response = disputeService.approveResolution(reference, UUID.fromString(approverId));
+        return ResponseEntity.ok(ApiResponse.success("Resolution approved", response));
     }
 
     @PutMapping("/{reference}/status")

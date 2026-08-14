@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -17,4 +19,5 @@ public class MerchantSettlementDetailsResponse {
     private String accountNumber;
     private String accountName;
     private String settlementEmail;
+    private LocalDateTime bankAccountCoolingOffUntil;
 }

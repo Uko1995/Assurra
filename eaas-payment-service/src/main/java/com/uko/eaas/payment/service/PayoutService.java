@@ -25,6 +25,8 @@ public interface PayoutService {
 
     void retryFailedPayouts();
 
+    void recoverUnknownPayouts();
+
     void handlePayoutWebhook(String interswitchRef, String status);
 
     /**

@@ -66,6 +66,17 @@ public class MerchantServiceImpl implements MerchantService {
         profile.setBusinessName(request.getBusinessName());
         profile.setBusinessType(request.getBusinessType());
         profile.setBusinessRegNumber(request.getBusinessRegNumber());
+
+        // Detect bank account change and apply cooling-off
+        String oldAccount = profile.getBankAccountNumber();
+        String newAccount = request.getBankAccountNumber();
+        if (oldAccount != null && !oldAccount.equals(newAccount)) {
+            log.info("Merchant {} bank account changed from {} to {}, applying 24h cooling-off", merchantId, oldAccount, newAccount);
+            profile.setBankAccountChangedAt(LocalDateTime.now());
+            profile.setBankAccountCoolingOffUntil(LocalDateTime.now().plusHours(24));
+            profile.setBankAccountVerifiedName(null);
+        }
+
         profile.setBankAccountNumber(request.getBankAccountNumber());
         profile.setBankCode(request.getBankCode());
         profile.setBankName(request.getBankName());

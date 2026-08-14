@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "EaaS Platform API",
-    "description": "Escrow-as-a-Service platform API collection.\nBase URL: http://localhost:8080 (API Gateway)\n\nThree user roles are supported (simultaneous login):\n  - Admin: admin@eaas.com / Admin@123\n  - Customer: customer@example.com / Customer@123\n  - Merchant: merchant@example.com / Merchant@123\n\nRegister Customer and Merchant first via the Auth folder, then login each role.\nAdmin user must be created via create_admin_user.sql first.",
+    "description": "Escrow-as-a-Service platform API collection.\nBase URL: http://localhost:8080 (API Gateway)\n\nFour user roles are supported (simultaneous login):\n  - Admin 1: admin@eaas.com / Admin@123\n  - Admin 2: admin2@eaas.com / Admin2@123  (for maker-checker dispute approval)\n  - Customer: customer@example.com / Customer@123\n  - Merchant: merchant@example.com / Merchant@123\n\nRegister Customer and Merchant first via the Auth folder, then login each role.\nAdmin users must be created via SQL directly in the database first.\n\nAdmin2 Setup:\nINSERT INTO users (id, full_name, email, password, role, email_verified, terms_accepted, created_at, updated_at)\nVALUES (NEWID(), 'Admin Two', 'admin2@eaas.com', '$2a$10$...', 'ADMIN', 1, 1, GETDATE(), GETDATE());",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -415,7 +415,7 @@
                 "forgot-password"
               ]
             },
-            "description": "Placeholder endpoint \u2014 not yet implemented in the identity service. Gateway passes it through as public."
+            "description": "Placeholder endpoint — not yet implemented in the identity service. Gateway passes it through as public."
           },
           "response": []
         },
@@ -445,7 +445,54 @@
                 "reset-password"
               ]
             },
-            "description": "Placeholder endpoint \u2014 not yet implemented in the identity service."
+            "description": "Placeholder endpoint — not yet implemented in the identity service."
+          },
+          "response": []
+        },
+        {
+          "name": "Admin2 Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const data = pm.response.json().data;",
+                  "    pm.environment.set('admin2_access_token', data.accessToken);",
+                  "    pm.environment.set('admin2_refresh_token', data.refreshToken);",
+                  "    pm.environment.set('admin2_user_id', data.user.id);",
+                  "    console.log('Admin2 logged in. ID:', data.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{admin2_email}}\",\n  \"password\": \"{{admin2_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/auth/login/admin",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login",
+                "admin"
+              ]
+            }
           },
           "response": []
         },
@@ -480,61 +527,6 @@
                 "api",
                 "v1",
                 "auth",
-                "health"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Simulate Interswitch Payout Webhook",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "X-Interswitch-Signature",
-                "value": "simulated-signature"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/webhooks/interswitch/payouts",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "webhooks",
-                "interswitch",
-                "payouts"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"event\": \"payout.success\",\n  \"reference\": \"{{payout_reference}}\",\n  \"interswitchRef\": \"ISW-OUT-{{$randomInt}}\",\n  \"status\": \"SUCCESS\",\n  \"amount\": 50000.0,\n  \"currency\": \"NGN\"\n}"
-            }
-          },
-          "response": [],
-          "description": "Simulates Interswitch payout webhook callback."
-        },
-        {
-          "name": "Webhooks Health",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url}}/api/v1/webhooks/health",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "webhooks",
                 "health"
               ]
             }
@@ -844,7 +836,7 @@
             },
             "method": "GET",
             "url": {
-              "raw": "{{base_url}}/api/v1/admin/escrows?page=0&size=20",
+              "raw": "{{base_url}}/api/v1/admin/escrows?page=0&size=20&status=&startDate=&endDate=",
               "host": [
                 "{{base_url}}"
               ],
@@ -862,6 +854,18 @@
                 {
                   "key": "size",
                   "value": "20"
+                },
+                {
+                  "key": "status",
+                  "value": ""
+                },
+                {
+                  "key": "startDate",
+                  "value": ""
+                },
+                {
+                  "key": "endDate",
+                  "value": ""
                 }
               ]
             }
@@ -1587,6 +1591,44 @@
           },
           "response": [],
           "description": "Legacy path for dispute status update (also available at /api/v1/admin/disputes/{ref}/status)."
+        },
+        {
+          "name": "Approve Dispute Resolution (Maker-Checker)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin2_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "X-User-Id",
+                "value": "{{admin2_user_id}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/disputes/{{dispute_reference}}/approve",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "disputes",
+                "{{dispute_reference}}",
+                "approve"
+              ]
+            }
+          },
+          "response": [],
+          "description": "Second admin approval required for disputes >= N10M (maker-checker pattern). Use Admin2 token."
         }
       ]
     },
@@ -1827,6 +1869,60 @@
     {
       "name": "10. Merchant - Payouts",
       "item": [
+        {
+          "name": "Create Payout (Merchant Withdraw)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const data = pm.response.json().data;",
+                  "    pm.environment.set('payout_reference', data.reference);",
+                  "    console.log('Payout created. Ref:', data.reference);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{merchant_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"escrowReference\": \"{{escrow_reference}}\",\n  \"amount\": 50000.0,\n  \"currency\": \"NGN\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/payouts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "payouts"
+              ]
+            }
+          },
+          "response": [],
+          "description": "Merchant-initiated payout (withdraw funds to their bank account)."
+        },
         {
           "name": "List My Payouts",
           "request": {
@@ -2243,7 +2339,8 @@
               ]
             }
           },
-          "response": []
+          "response": [],
+          "description": "\n\nNote: Create Payout has moved to '10. Merchant - Payouts'."
         },
         {
           "name": "Get Payment by Reference",
@@ -2361,60 +2458,6 @@
             }
           },
           "response": []
-        },
-        {
-          "name": "Create Payout (Merchant Withdraw)",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/payouts",
-              "host": [
-                "{{base_url}}"
-              ],
-              "path": [
-                "api",
-                "v1",
-                "payouts"
-              ]
-            },
-            "auth": {
-              "type": "bearer",
-              "bearer": [
-                {
-                  "key": "token",
-                  "value": "{{merchant_access_token}}",
-                  "type": "string"
-                }
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"amount\": 50000.0,\n  \"currency\": \"NGN\"\n}"
-            }
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 201) {",
-                  "    const data = pm.response.json().data;",
-                  "    pm.environment.set('payout_reference', data.reference);",
-                  "    console.log('Payout created. Ref:', data.reference);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "description": "Merchant-initiated payout (withdraw funds to their bank account). Captures the payout reference."
         }
       ]
     },
@@ -3128,7 +3171,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"event\": \"payment.success\",\n  \"reference\": \"{{payment_reference}}\",\n  \"interswitchRef\": \"ISW-2026-{{$randomInt}}\",\n  \"PaymentReference\": \"ISW-2026-{{$randomInt}}\",\n  \"status\": \"SUCCESS\",\n  \"amount\": 100000.00,\n  \"currency\": \"NGN\",\n  \"channel\": \"CARD\",\n  \"cardLast4\": \"4242\",\n  \"cardBrand\": \"VISA\",\n  \"bankName\": \"GTBank\",\n  \"paidAt\": \"2026-07-24T10:30:00\"\n}"
+              "raw": "{\n  \"uuid\": \"evt-{{$guid}}\",\n  \"event\": \"payment.success\",\n  \"reference\": \"{{payment_reference}}\",\n  \"interswitchRef\": \"ISW-2026-{{$randomInt}}\",\n  \"PaymentReference\": \"ISW-2026-{{$randomInt}}\",\n  \"status\": \"SUCCESS\",\n  \"amount\": 100000.00,\n  \"currency\": \"NGN\",\n  \"channel\": \"CARD\",\n  \"cardLast4\": \"4242\",\n  \"cardBrand\": \"VISA\",\n  \"bankName\": \"GTBank\",\n  \"paidAt\": \"2026-07-24T10:30:00\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/v1/webhooks/interswitch/payments",
@@ -3158,6 +3201,61 @@
               ],
               "path": [
                 "actuator",
+                "health"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Simulate Interswitch Payout Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Interswitch-Signature",
+                "value": "simulated-signature"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"payout.success\",\n  \"reference\": \"{{payout_reference}}\",\n  \"interswitchRef\": \"ISW-OUT-{{$randomInt}}\",\n  \"status\": \"SUCCESS\",\n  \"amount\": 50000.0,\n  \"currency\": \"NGN\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/webhooks/interswitch/payouts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "webhooks",
+                "interswitch",
+                "payouts"
+              ]
+            }
+          },
+          "response": [],
+          "description": "Simulates Interswitch payout webhook callback."
+        },
+        {
+          "name": "Webhooks Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/webhooks/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "webhooks",
                 "health"
               ]
             }
@@ -3281,6 +3379,106 @@
             }
           },
           "response": []
+        }
+      ]
+    },
+    {
+      "name": "17. Admin - Compliance Holds",
+      "item": [
+        {
+          "name": "List Active Holds by Escrow",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const data = pm.response.json().data;",
+                  "    if (Array.isArray(data) && data.length > 0) {",
+                  "        pm.environment.set('hold_id', data[0].id);",
+                  "        console.log('Captured hold_id:', data[0].id);",
+                  "    } else {",
+                  "        console.log('No active compliance holds for this escrow');",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/compliance/escrow/{{escrow_reference}}/holds",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "compliance",
+                "escrow",
+                "{{escrow_reference}}",
+                "holds"
+              ]
+            }
+          },
+          "response": [],
+          "description": "Auto-captures hold_id into environment if any active holds exist."
+        },
+        {
+          "name": "Release Hold",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{admin_access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/api/v1/admin/compliance/holds/{{hold_id}}/release?adminId={{admin_user_id}}&notes=Reviewed+and+cleared",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "admin",
+                "compliance",
+                "holds",
+                "{{hold_id}}",
+                "release"
+              ],
+              "query": [
+                {
+                  "key": "adminId",
+                  "value": "{{admin_user_id}}"
+                },
+                {
+                  "key": "notes",
+                  "value": "Reviewed and cleared"
+                }
+              ]
+            }
+          },
+          "response": [],
+          "description": "Releases a compliance hold so the escrow can proceed to ship/confirm/payout."
         }
       ]
     }

@@ -1,8 +1,10 @@
 package com.uko.eaas.payment.model.entity;
 
+import com.uko.eaas.payment.converter.EncryptedStringConverter;
 import com.uko.eaas.payment.model.enums.PayoutMethod;
 import com.uko.eaas.payment.model.enums.PayoutStatus;
 import jakarta.persistence.*;
+import jakarta.persistence.Convert;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -67,12 +69,15 @@ public class Payout {
     @Column(name = "bank_code", length = 10)
     private String bankCode;
 
+    @Convert(converter = EncryptedStringConverter.class)
     @Column(name = "bank_name", length = 100)
     private String bankName;
 
+    @Convert(converter = EncryptedStringConverter.class)
     @Column(name = "account_number", length = 100)
     private String accountNumber;
 
+    @Convert(converter = EncryptedStringConverter.class)
     @Column(name = "account_name", length = 255)
     private String accountName;
 
@@ -98,6 +103,10 @@ public class Payout {
 
     @Column(name = "next_retry_at")
     private LocalDateTime nextRetryAt;
+
+    // Concurrency control
+    @Version
+    private Long version;
 
     // Metadata
     @Column(columnDefinition = "jsonb")

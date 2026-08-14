@@ -1,11 +1,17 @@
 package com.uko.eaas.payment.dto;
 
 import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class InitializePaymentRequest {
 
     @NotBlank(message = "Escrow reference is required")

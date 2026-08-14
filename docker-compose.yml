@@ -74,8 +74,8 @@ services:
       - SERVER_PORT=8081
       # MSSQL Database Configuration
       - MSSQL_URL=mssql-identity:1433
-      - MSSQL_USER=sa
-      - MSSQL_PASSWORD=${MSSQL_PASSWORD:-YourStrong@Passw0rd}
+      - MSSQL_USER=identity_app
+      - MSSQL_PASSWORD=${IDENTITY_DB_PASSWORD:-identityDB#2024!}
       # Redis
       - REDIS_HOST=redis
       - REDIS_PORT=6379
@@ -127,8 +127,8 @@ services:
       - SERVER_PORT=8082
       # MSSQL Database Configuration
       - MSSQL_URL=mssql-escrow:1433
-      - MSSQL_USER=sa
-      - MSSQL_PASSWORD=${MSSQL_PASSWORD:-YourStrong@Passw0rd}
+      - MSSQL_USER=escrow_app
+      - MSSQL_PASSWORD=${ESCROW_DB_PASSWORD:-escrowDB#2024!}
       # Redis
       - REDIS_HOST=redis
       - REDIS_PORT=6379
@@ -178,8 +178,8 @@ services:
       - SERVER_PORT=8083
       # MSSQL Database Configuration
       - MSSQL_URL=mssql-payment:1433
-      - MSSQL_USER=sa
-      - MSSQL_PASSWORD=${MSSQL_PASSWORD:-YourStrong@Passw0rd}
+      - MSSQL_USER=payment_app
+      - MSSQL_PASSWORD=${PAYMENT_DB_PASSWORD:-paymentDB#2024!}
       # RabbitMQ
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
@@ -226,8 +226,8 @@ services:
       - SERVER_PORT=8084
       # MSSQL Database Configuration
       - MSSQL_URL=mssql-communication:1433
-      - MSSQL_USER=sa
-      - MSSQL_PASSWORD=${MSSQL_PASSWORD:-YourStrong@Passw0rd}
+      - MSSQL_USER=communication_app
+      - MSSQL_PASSWORD=${COMMUNICATION_DB_PASSWORD:-commDB#2024!}
       # RabbitMQ
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672

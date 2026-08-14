@@ -10,6 +10,7 @@ import com.uko.eaas.escrow.repository.EscrowStateHistoryRepository;
 import com.uko.eaas.escrow.repository.EscrowTransactionRepository;
 import com.uko.eaas.escrow.service.EscrowService;
 import com.uko.eaas.escrow.service.FeeCalculationService;
+import com.uko.eaas.escrow.service.RiskScoringService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,7 @@ public class EscrowServiceImpl implements EscrowService {
     private final EscrowTransactionRepository escrowRepository;
     private final EscrowStateHistoryRepository stateHistoryRepository;
     private final FeeCalculationService feeCalculationService;
+    private final RiskScoringService riskScoringService;
     private final RabbitTemplate rabbitTemplate;
 
     @Value("${escrow.confirmation.window-hours:72}")
@@ -136,13 +138,22 @@ public class EscrowServiceImpl implements EscrowService {
     }
 
     @Override
-    public EscrowResponse shipEscrow(String reference, ShipEscrowRequest request) {
-        log.info("Shipping escrow: {}", reference);
+    public EscrowResponse shipEscrow(String reference, ShipEscrowRequest request, String merchantId) {
+        log.info("Shipping escrow: {} by merchant: {}", reference, merchantId);
 
         EscrowTransaction escrow = escrowRepository.findByReference(reference)
                 .orElseThrow(() -> new EntityNotFoundException("Escrow not found: " + reference));
 
+        // Verify merchant owns this escrow
+        if (!escrow.getMerchantId().equals(UUID.fromString(merchantId))) {
+            throw new IllegalStateException("Only the assigned merchant can ship this escrow");
+        }
+
         validateStateTransition(escrow.getStatus(), EscrowStatus.SHIPPED);
+
+        if (riskScoringService.hasActiveHold(escrow.getId())) {
+            throw new IllegalStateException("Cannot proceed: escrow has an active compliance hold. Awaiting manual review.");
+        }
 
         EscrowStatus oldStatus = escrow.getStatus();
 
@@ -213,6 +224,10 @@ public class EscrowServiceImpl implements EscrowService {
         }
 
         validateStateTransition(escrow.getStatus(), EscrowStatus.CONFIRMED);
+
+        if (riskScoringService.hasActiveHold(escrow.getId())) {
+            throw new IllegalStateException("Cannot proceed: escrow has an active compliance hold. Awaiting manual review.");
+        }
 
         EscrowStatus oldStatus = escrow.getStatus();
 
@@ -397,6 +412,9 @@ public class EscrowServiceImpl implements EscrowService {
         // Notify merchant
         publishEvent("escrow.funded", escrow, "SYSTEM");
 
+        // Evaluate risk and apply compliance hold if needed
+        riskScoringService.evaluateEscrow(escrow.getId());
+
         log.info("Escrow {} marked as funded and merchant notified", request.getReference());
     }
 
@@ -435,6 +453,11 @@ public class EscrowServiceImpl implements EscrowService {
 
         for (EscrowTransaction escrow : expired) {
             try {
+                if (riskScoringService.hasActiveHold(escrow.getId())) {
+                    log.warn("Skipping auto-release for escrow {} due to active compliance hold", escrow.getReference());
+                    continue;
+                }
+
                 EscrowStatus oldStatus = escrow.getStatus();
                 escrow.setStatus(EscrowStatus.AUTO_RELEASED);
                 escrowRepository.save(escrow);

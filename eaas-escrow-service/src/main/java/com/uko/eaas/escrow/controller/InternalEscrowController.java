@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -19,6 +20,7 @@ public class InternalEscrowController {
     private final EscrowService escrowService;
 
     @GetMapping("/{reference}")
+    @PreAuthorize("hasAnyRole('SERVICE','ADMIN')")
     public ResponseEntity<ApiResponse<EscrowResponse>> getEscrow(@PathVariable String reference) {
         log.debug("Internal request for escrow: {}", reference);
         EscrowResponse escrow = escrowService.getEscrow(reference);

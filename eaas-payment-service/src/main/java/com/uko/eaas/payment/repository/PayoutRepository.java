@@ -5,10 +5,12 @@ import com.uko.eaas.payment.model.enums.PayoutStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import jakarta.persistence.LockModeType;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +19,7 @@ import java.util.UUID;
 @Repository
 public interface PayoutRepository extends JpaRepository<Payout, UUID> {
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Payout> findByReference(String reference);
 
     Optional<Payout> findByEscrowReference(String escrowReference);
@@ -36,6 +39,9 @@ public interface PayoutRepository extends JpaRepository<Payout, UUID> {
 
     @Query("SELECT p FROM Payout p WHERE p.status = 'FAILED' AND p.nextRetryAt <= :now AND p.retryCount < :maxRetries")
     List<Payout> findFailedForRetry(@Param("now") LocalDateTime now, @Param("maxRetries") int maxRetries);
+
+    @Query("SELECT p FROM Payout p WHERE p.status = 'UNKNOWN' AND p.processedAt <= :cutoff")
+    List<Payout> findUnknownForRecovery(@Param("cutoff") LocalDateTime cutoff);
 
     boolean existsByEscrowReference(String escrowReference);
 

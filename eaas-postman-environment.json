@@ -39,6 +39,36 @@
       "enabled": true
     },
     {
+      "key": "admin2_email",
+      "value": "admin2@eaas.com",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "admin2_password",
+      "value": "Admin2@123",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "admin2_access_token",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "admin2_refresh_token",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "admin2_user_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
       "key": "customer_email",
       "value": "customer@example.com",
       "type": "default",
@@ -166,6 +196,12 @@
     },
     {
       "key": "payment_webhook_ref",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "hold_id",
       "value": "",
       "type": "default",
       "enabled": true

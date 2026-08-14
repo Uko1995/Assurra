@@ -53,8 +53,9 @@ public class EscrowController {
     @PostMapping("/{reference}/ship")
     public ResponseEntity<ApiResponse<EscrowResponse>> shipEscrow(
             @PathVariable String reference,
-            @Valid @RequestBody ShipEscrowRequest request) {
-        EscrowResponse escrow = escrowService.shipEscrow(reference, request);
+            @Valid @RequestBody ShipEscrowRequest request,
+            @RequestHeader("X-User-Id") String merchantId) {
+        EscrowResponse escrow = escrowService.shipEscrow(reference, request, merchantId);
         return ResponseEntity.ok(ApiResponse.success("Escrow marked as shipped", escrow));
     }
 

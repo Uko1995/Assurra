@@ -1,7 +1,9 @@
 package com.uko.eaas.payment.service.impl;
 
 import com.uko.eaas.payment.client.InterswitchClient;
+import com.uko.eaas.payment.client.MerchantInternalClient;
 import com.uko.eaas.payment.dto.CreatePayoutRequest;
+import com.uko.eaas.payment.dto.MerchantSettlementDetailsResponse;
 import com.uko.eaas.payment.dto.PayoutResponse;
 import com.uko.eaas.payment.messaging.event.PayoutEvent;
 import com.uko.eaas.payment.model.entity.Payout;
@@ -22,6 +24,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -32,6 +35,7 @@ public class PayoutServiceImpl implements PayoutService {
 
     private final PayoutRepository payoutRepository;
     private final InterswitchClient interswitchClient;
+    private final MerchantInternalClient merchantInternalClient;
     private final RabbitTemplate rabbitTemplate;
 
     @Value("${payout.retry.attempts:6}")
@@ -40,6 +44,19 @@ public class PayoutServiceImpl implements PayoutService {
     @Override
     public PayoutResponse createPayout(CreatePayoutRequest request) {
         log.info("Creating payout for escrow: {} to merchant: {}", request.getEscrowReference(), request.getMerchantId());
+
+        // Check cooling-off period for beneficiary changes
+        try {
+            MerchantSettlementDetailsResponse settlement = merchantInternalClient.getSettlementDetails(request.getMerchantId());
+            if (settlement.getBankAccountCoolingOffUntil() != null
+                    && settlement.getBankAccountCoolingOffUntil().isAfter(LocalDateTime.now())) {
+                throw new IllegalStateException("Beneficiary recently changed. Cooling off until " + settlement.getBankAccountCoolingOffUntil());
+            }
+        } catch (IllegalStateException e) {
+            throw e;
+        } catch (Exception e) {
+            log.warn("Could not verify merchant cooling-off status: {}", e.getMessage());
+        }
 
         // Check for duplicate
         if (payoutRepository.existsByEscrowReference(request.getEscrowReference())) {
@@ -218,20 +235,68 @@ public class PayoutServiceImpl implements PayoutService {
         payout.setProcessedAt(LocalDateTime.now());
         payoutRepository.save(payout);
 
-        // Call Interswitch
-        String interswitchRef = interswitchClient.initiatePayout(
-                payout.getReference(),
-                payout.getNetAmount(),
-                payout.getBankCode(),
-                payout.getAccountNumber(),
-                payout.getAccountName()
-        );
+        try {
+            // Call Interswitch
+            String interswitchRef = interswitchClient.initiatePayout(
+                    payout.getReference(),
+                    payout.getNetAmount(),
+                    payout.getBankCode(),
+                    payout.getAccountNumber(),
+                    payout.getAccountName()
+            );
 
-        payout.setInterswitchRef(interswitchRef);
-        payout.setStatus(PayoutStatus.QUEUED);
-        payoutRepository.save(payout);
+            payout.setInterswitchRef(interswitchRef);
+            payout.setStatus(PayoutStatus.QUEUED);
+            payoutRepository.save(payout);
 
-        log.info("Payout {} submitted to Interswitch with ref: {}", payout.getReference(), interswitchRef);
+            log.info("Payout {} submitted to Interswitch with ref: {}", payout.getReference(), interswitchRef);
+        } catch (Exception e) {
+            if (e.getMessage() != null && (e.getMessage().contains("timeout") || e.getMessage().contains("Timeout"))) {
+                log.warn("Payout {} timeout - marking UNKNOWN for recovery", payout.getReference());
+                payout.setStatus(PayoutStatus.UNKNOWN);
+                payoutRepository.save(payout);
+                publishPayoutEvent(payout, "unknown");
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void recoverUnknownPayouts() {
+        log.debug("Recovering UNKNOWN payouts");
+
+        List<Payout> unknownPayouts = payoutRepository.findUnknownForRecovery(
+                LocalDateTime.now().minusMinutes(5));
+
+        for (Payout payout : unknownPayouts) {
+            try {
+                if (payout.getInterswitchRef() == null) {
+                    log.warn("UNKNOWN payout {} has no provider reference, marking FAILED", payout.getReference());
+                    handlePayoutFailure(payout, "No provider reference for recovery");
+                    continue;
+                }
+
+                Map<String, Object> statusResponse = interswitchClient.verifyPayout(payout.getInterswitchRef());
+                String status = (String) statusResponse.get("status");
+
+                PayoutStatus newStatus = mapInterswitchStatus(status);
+                if (newStatus == PayoutStatus.COMPLETED) {
+                    payout.setStatus(PayoutStatus.COMPLETED);
+                    payout.setCompletedAt(LocalDateTime.now());
+                    publishPayoutEvent(payout, "completed");
+                } else if (newStatus == PayoutStatus.FAILED) {
+                    handlePayoutFailure(payout, "Provider confirmed failure during recovery");
+                } else {
+                    // Still processing or unknown - leave as UNKNOWN, will retry
+                    log.info("Payout {} still in provider status: {} during recovery", payout.getReference(), status);
+                }
+                payoutRepository.save(payout);
+            } catch (Exception e) {
+                log.error("Failed to recover UNKNOWN payout {}: {}", payout.getReference(), e.getMessage());
+            }
+        }
     }
 
     private void handlePayoutFailure(Payout payout, String reason) {

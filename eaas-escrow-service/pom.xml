@@ -79,6 +79,16 @@
             <version>4.0.0</version>
         </dependency>
 
+        <!-- ShedLock for cluster-safe scheduling -->
+        <dependency>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-provider-jdbc-template</artifactId>
+        </dependency>
+
         <!-- Testing -->
         <dependency>
             <groupId>org.testcontainers</groupId>
@@ -89,6 +99,16 @@
             <groupId>org.testcontainers</groupId>
             <artifactId>mssqlserver</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <!-- Distributed tracing (Micrometer + Brave) -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-brave</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.zipkin.reporter2</groupId>
+            <artifactId>zipkin-reporter-brave</artifactId>
         </dependency>
     </dependencies>
 

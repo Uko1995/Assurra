@@ -118,10 +118,12 @@ public class EscrowTransaction {
     @Column(name = "idempotency_key", unique = true, length = 255)
     private String idempotencyKey;
 
-    @Column(columnDefinition = "jsonb")
-    private String metadata;
+    // Concurrency control
+    @Version
+    private Long version;
 
-    @CreationTimestamp
+    @Column(name = "processing_node", length = 100)
+    private String processingNode;
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

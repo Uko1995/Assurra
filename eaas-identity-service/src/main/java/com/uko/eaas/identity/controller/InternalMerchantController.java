@@ -43,6 +43,7 @@ public class InternalMerchantController {
                 .accountNumber(profile.getBankAccountNumber())
                 .accountName(profile.getBusinessName())
                 .settlementEmail(profile.getSettlementEmail())
+                .bankAccountCoolingOffUntil(profile.getBankAccountCoolingOffUntil())
                 .build();
 
         return ResponseEntity.ok(response);

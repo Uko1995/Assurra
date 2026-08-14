@@ -1,8 +1,10 @@
 package com.uko.eaas.payment.model.entity;
 
+import com.uko.eaas.payment.converter.EncryptedStringConverter;
 import com.uko.eaas.payment.model.enums.PaymentChannel;
 import com.uko.eaas.payment.model.enums.PaymentStatus;
 import jakarta.persistence.*;
+import jakarta.persistence.Convert;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -78,16 +80,20 @@ public class PaymentTransaction {
     private String failureReason;
 
     // Card Details (masked)
+    @Convert(converter = EncryptedStringConverter.class)
     @Column(name = "card_last4", length = 4)
     private String cardLast4;
 
+    @Convert(converter = EncryptedStringConverter.class)
     @Column(name = "card_brand", length = 20)
     private String cardBrand;
 
     // Bank Details
+    @Convert(converter = EncryptedStringConverter.class)
     @Column(name = "bank_name", length = 100)
     private String bankName;
 
+    @Convert(converter = EncryptedStringConverter.class)
     @Column(name = "account_number", length = 10)
     private String accountNumber;
 
@@ -103,6 +109,10 @@ public class PaymentTransaction {
 
     @Column(name = "interswitch_refund_ref", length = 255)
     private String interswitchRefundRef;
+
+    // Concurrency control
+    @Version
+    private Long version;
 
     // Metadata
     @Column(name = "idempotency_key", unique = true, length = 255)

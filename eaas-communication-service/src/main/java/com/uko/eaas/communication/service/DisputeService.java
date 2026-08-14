@@ -22,6 +22,8 @@ public interface DisputeService {
 
     DisputeResponse resolveDispute(String reference, ResolveDisputeRequest request, UUID resolvedBy);
 
+    DisputeResponse approveResolution(String reference, UUID approverId);
+
     DisputeResponse updateDisputeStatus(String reference, DisputeStatus status);
 
     DisputeMessageResponse addMessage(DisputeMessageRequest request);

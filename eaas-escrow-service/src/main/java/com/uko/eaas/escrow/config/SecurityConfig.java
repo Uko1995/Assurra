@@ -47,8 +47,8 @@ public class SecurityConfig {
                 // Public health endpoints (no signature required)
                 .requestMatchers("/actuator/health", "/health", "/api/v1/escrow/health").permitAll()
                 
-                // Internal service-to-service endpoints
-                .requestMatchers("/internal/**").permitAll()
+                // Internal service-to-service endpoints require gateway signature or service token
+                .requestMatchers("/internal/**").authenticated()
                 
                 // All other requests require gateway signature
                 .anyRequest().authenticated()

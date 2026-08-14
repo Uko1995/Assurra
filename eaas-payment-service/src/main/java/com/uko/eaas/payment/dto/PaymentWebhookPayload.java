@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Data
 public class PaymentWebhookPayload {
 
+    private String uuid;
     private String event;
     private String reference;
     private String interswitchRef;

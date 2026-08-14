@@ -83,6 +83,15 @@ public class MerchantProfile {
     @Column(name = "kyc_rejection_reason", columnDefinition = "TEXT")
     private String kycRejectionReason;
 
+    @Column(name = "bank_account_changed_at")
+    private LocalDateTime bankAccountChangedAt;
+
+    @Column(name = "bank_account_cooling_off_until")
+    private LocalDateTime bankAccountCoolingOffUntil;
+
+    @Column(name = "bank_account_verified_name", length = 255)
+    private String bankAccountVerifiedName;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

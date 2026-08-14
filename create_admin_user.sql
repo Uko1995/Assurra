@@ -10,9 +10,9 @@
 USE identity_db;
 GO
 
-DECLARE @AdminId UNIQUEIDENTIFIER = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
+DECLARE @AdminId UNIQUEIDENTIFIER = 'a2b2c3d4-e5f6-7892-abcd-ef1234567568';
 
-IF NOT EXISTS (SELECT 1 FROM users WHERE email = 'admin@eaas.local')
+IF NOT EXISTS (SELECT 1 FROM users WHERE email = 'admin2@eaas.local')
 BEGIN
     INSERT INTO users (
         id,
@@ -31,10 +31,10 @@ BEGIN
     )
     VALUES (
         @AdminId,
-        'admin@eaas.local',
-        '+2348000000000',
-        'System Administrator',
-        '$2b$10$gRmDZPdztibFSLk1sw9N/OnbZx8us4wyYyJx6LrxtQtcryUA9lSc2',  -- BCrypt hash for 'Admin@123'
+        'admin2@eaas.local',
+        '+2349000000000',
+        'System Administrator 2',
+        '$2y$12$HY/.ly0jNJAFWS7T01ftSONoxt9gHHT8VpW78dDOX049wLNa9/sbW',  -- BCrypt hash for 'Admin2@123'
         'ADMIN',
         NULL,
         1,      -- email_verified = true
@@ -46,12 +46,12 @@ BEGIN
     );
 
     PRINT 'Admin user created successfully.';
-    PRINT 'Email:    admin@eaas.local';
-    PRINT 'Password: Admin@123';
+    PRINT 'Email:    admin2@eaas.local';
+    PRINT 'Password: Admin2@123';
     PRINT 'User ID:  ' + CAST(@AdminId AS NVARCHAR(36));
 END
 ELSE
 BEGIN
-    PRINT 'Admin user with email admin@eaas.local already exists. Skipping.';
+    PRINT 'Admin user with email admin2@eaas.local already exists. Skipping.';
 END
 GO

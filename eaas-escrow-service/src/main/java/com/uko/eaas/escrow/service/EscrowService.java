@@ -13,7 +13,7 @@ public interface EscrowService {
     Page<EscrowResponse> listAllEscrows(String userId, String role, Pageable pageable);
 
 
-    EscrowResponse shipEscrow(String reference, ShipEscrowRequest request);
+    EscrowResponse shipEscrow(String reference, ShipEscrowRequest request, String merchantId);
 
     EscrowResponse deliverEscrow(String reference, String customerId);
 

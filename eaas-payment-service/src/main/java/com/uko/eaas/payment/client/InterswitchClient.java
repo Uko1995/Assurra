@@ -42,6 +42,11 @@ public class InterswitchClient {
     @Value("${interswitch.mock.enabled:true}")
     private boolean mockEnabled;
 
+    @Value("${interswitch.merchant.code:}")
+    private String merchantCode;
+
+    // ==================== PAYMENT GATEWAY ====================
+
     public InitializePaymentResponse initializePayment(InitializePaymentRequest request, String reference) {
         if (mockEnabled) {
             log.info("[MOCK] Initializing payment for reference: {}", reference);
@@ -61,7 +66,7 @@ public class InterswitchClient {
             WebClient client = createWebClient();
 
             Map<String, Object> body = new HashMap<>();
-            body.put("amount", request.getAmount().multiply(BigDecimal.valueOf(100)).intValue()); // Interswitch uses kobo
+            body.put("amount", request.getAmount().multiply(BigDecimal.valueOf(100)).intValue());
             body.put("currency", request.getCurrency());
             body.put("reference", reference);
             body.put("customerEmail", request.getCustomerEmail());
@@ -152,6 +157,99 @@ public class InterswitchClient {
         }
     }
 
+    public Map<String, Object> getTransactionStatus(String transactionReference) {
+        if (mockEnabled) {
+            log.info("[MOCK] Getting transaction status: {}", transactionReference);
+            Map<String, Object> mock = new HashMap<>();
+            mock.put("Amount", 1000000);
+            mock.put("ResponseCode", "00");
+            mock.put("ResponseDescription", "Approved by Financial Institution");
+            mock.put("PaymentReference", "MOCK|REF|" + transactionReference);
+            mock.put("MerchantReference", transactionReference);
+            mock.put("Channel", "WEB");
+            mock.put("TransactionDate", LocalDateTime.now().toString());
+            return mock;
+        }
+
+        log.info("Getting transaction status from Interswitch: {}", transactionReference);
+
+        try {
+            WebClient client = createWebClient();
+
+            return client.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/collections/api/v2/gettransaction.json")
+                            .queryParam("transactionReference", transactionReference)
+                            .build())
+                    .retrieve()
+                    .bodyToMono(Map.class)
+                    .block();
+
+        } catch (WebClientResponseException e) {
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                log.warn("Transaction not found in Interswitch: {}", transactionReference);
+                Map<String, Object> notFound = new HashMap<>();
+                notFound.put("ResponseCode", "Z25");
+                notFound.put("ResponseDescription", "Transaction not Found");
+                return notFound;
+            }
+            log.error("Interswitch transaction status failed: {}", e.getMessage());
+            throw new RuntimeException("Transaction status lookup failed", e);
+        } catch (Exception e) {
+            log.error("Error getting transaction status from Interswitch: {}", e.getMessage());
+            throw new RuntimeException("Transaction status lookup failed", e);
+        }
+    }
+
+    // ==================== VIRTUAL ACCOUNTS ====================
+
+    public Map<String, Object> generateVirtualAccount(String accountName, String merchantCode, String provider) {
+        if (mockEnabled) {
+            log.info("[MOCK] Generating virtual account for: {}", accountName);
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", java.util.UUID.randomUUID().toString());
+            response.put("merchantCode", merchantCode);
+            response.put("payableCode", "VIRTUAL_ACCOUNT" + merchantCode + System.currentTimeMillis());
+            response.put("enabled", true);
+            response.put("dateCreated", System.currentTimeMillis());
+            response.put("accountName", accountName);
+            response.put("accountNumber", "71" + String.format("%08d", (int)(Math.random() * 100000000)));
+            response.put("bankName", provider != null ? provider + " Bank" : "Wema Bank");
+            response.put("bankCode", provider != null ? provider : "WEMA");
+            response.put("provider", provider != null ? provider : "WEMA");
+            return response;
+        }
+
+        log.info("Generating virtual account with Interswitch for: {}", accountName);
+
+        try {
+            WebClient client = createWebClient();
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("accountName", accountName);
+            body.put("merchantCode", merchantCode);
+            if (provider != null) {
+                body.put("provider", provider);
+            }
+
+            return client.post()
+                    .uri("/paymentgateway/api/v1/payable/virtualaccount")
+                    .bodyValue(body)
+                    .retrieve()
+                    .bodyToMono(Map.class)
+                    .block();
+
+        } catch (WebClientResponseException e) {
+            log.error("Interswitch virtual account generation failed: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw new RuntimeException("Virtual account generation failed: " + e.getMessage());
+        } catch (Exception e) {
+            log.error("Error generating virtual account with Interswitch: {}", e.getMessage());
+            throw new RuntimeException("Virtual account generation failed", e);
+        }
+    }
+
+    // ==================== PAYOUTS ====================
+
     public String initiatePayout(String reference, BigDecimal amount, String bankCode, String accountNumber, String accountName) {
         if (mockEnabled) {
             log.info("[MOCK] Initiating payout: {} for amount {}", reference, amount);
@@ -194,44 +292,6 @@ public class InterswitchClient {
         }
     }
 
-    public String initiateRefund(String paymentReference, BigDecimal amount) {
-        if (mockEnabled) {
-            log.info("[MOCK] Refunding payment: {} for amount {}", paymentReference, amount);
-            return "MOCK-REFUND-" + paymentReference;
-        }
-
-        log.info("Refunding payment via Interswitch: {} for amount {}", paymentReference, amount);
-
-        try {
-            WebClient client = createWebClient();
-
-            Map<String, Object> body = new HashMap<>();
-            body.put("amount", amount.multiply(BigDecimal.valueOf(100)).intValue()); // Interswitch uses kobo
-            body.put("currency", "NGN");
-            body.put("reference", paymentReference);
-
-            Map<String, Object> response = client.post()
-                    .uri("/api/v1/payments/{reference}/refund", paymentReference)
-                    .bodyValue(body)
-                    .retrieve()
-                    .bodyToMono(Map.class)
-                    .block();
-
-            if (response == null) {
-                throw new RuntimeException("Empty response from Interswitch");
-            }
-
-            return (String) response.get("refundReference");
-
-        } catch (WebClientResponseException e) {
-            log.error("Interswitch refund failed: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
-            throw new RuntimeException("Refund initiation failed: " + e.getMessage());
-        } catch (Exception e) {
-            log.error("Error initiating refund with Interswitch: {}", e.getMessage());
-            throw new RuntimeException("Refund initiation failed", e);
-        }
-    }
-
     public Map<String, Object> verifyPayout(String interswitchRef) {
         if (mockEnabled) {
             log.info("[MOCK] Verifying payout: {}", interswitchRef);
@@ -261,6 +321,48 @@ public class InterswitchClient {
             throw new RuntimeException("Payout verification failed", e);
         }
     }
+
+    // ==================== REFUNDS ====================
+
+    public String initiateRefund(String paymentReference, BigDecimal amount) {
+        if (mockEnabled) {
+            log.info("[MOCK] Refunding payment: {} for amount {}", paymentReference, amount);
+            return "MOCK-REFUND-" + paymentReference;
+        }
+
+        log.info("Refunding payment via Interswitch: {} for amount {}", paymentReference, amount);
+
+        try {
+            WebClient client = createWebClient();
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("amount", amount.multiply(BigDecimal.valueOf(100)).intValue());
+            body.put("currency", "NGN");
+            body.put("reference", paymentReference);
+
+            Map<String, Object> response = client.post()
+                    .uri("/api/v1/payments/{reference}/refund", paymentReference)
+                    .bodyValue(body)
+                    .retrieve()
+                    .bodyToMono(Map.class)
+                    .block();
+
+            if (response == null) {
+                throw new RuntimeException("Empty response from Interswitch");
+            }
+
+            return (String) response.get("refundReference");
+
+        } catch (WebClientResponseException e) {
+            log.error("Interswitch refund failed: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw new RuntimeException("Refund initiation failed: " + e.getMessage());
+        } catch (Exception e) {
+            log.error("Error initiating refund with Interswitch: {}", e.getMessage());
+            throw new RuntimeException("Refund initiation failed", e);
+        }
+    }
+
+    // ==================== WEBHOOKS ====================
 
     public boolean verifyWebhookSignature(String payload, String signature) {
         if (mockEnabled) {
@@ -292,15 +394,12 @@ public class InterswitchClient {
     }
 
     private String generateAuthToken() {
-        // In production, this would generate a proper OAuth token
-        // For sandbox/testing, we use a simple Base64 encoding
         String credentials = apiKey + ":" + apiSecret;
         return Base64.getEncoder().encodeToString(credentials.getBytes(StandardCharsets.UTF_8));
     }
 
     private LocalDateTime parseDateTime(Object value) {
         if (value == null) return null;
-        // Parse ISO date time string
         return LocalDateTime.parse(value.toString().replace("Z", ""));
     }
 }
