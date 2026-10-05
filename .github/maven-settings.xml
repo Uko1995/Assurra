@@ -1,0 +1,13 @@
+<settings>
+  <mirrors>
+    <!--
+      The parent POM lists a private Archiva host that GitHub-hosted runners
+      cannot reach. Send every repository lookup to Maven Central instead.
+    -->
+    <mirror>
+      <id>central-mirror</id>
+      <url>https://repo.maven.apache.org/maven2</url>
+      <mirrorOf>*</mirrorOf>
+    </mirror>
+  </mirrors>
+</settings>
