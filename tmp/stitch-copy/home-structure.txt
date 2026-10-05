@@ -1,0 +1,90 @@
+Escrow that works the way
+African commerce works.
+Secure your naira payments in a neutral vault. Buyers are protected until delivery. Sellers are guaranteed payment upon completion.
+Create a free escrow
+Become a merchant
+shield CBN Regulated
+lock Bank-Grade Security
+verified
+Transaction Secured
+₦2,500,000.00
+Bank-grade encryption
+•
+48-hour dispute SLA
+•
+Naira-native
+•
+Nigerian bank payouts
+•
+Built for slow networks
+The Middle Ground for Digital Commerce
+Bridging the trust gap between buyers and sellers in Nigeria.
+warning
+Buyer Risk
+• Seller ghosting after payment
+• Receiving the wrong item
+• Counterfeit goods
+handshake
+Assurra
+The neutral vault securing funds until both parties are satisfied.
+warning
+Seller Risk
+• Fraudulent chargebacks
+• Buyers with no intent to pay
+• Lack of trust limits sales
+How It Works
+From agreement to payout in 7 clear steps.
+add
+Create
+payment
+Pay Interswitch
+notifications
+Notified
+local_shipping
+Ship
+where_to_vote
+Delivered 72h window
+check_circle
+Confirm
+account_balance
+Payout &lt;24h
+View full lifecycle arrow_forward
+Who is Assurra for?
+Merchants
+check Simple KYC onboarding
+check Instant funded alerts
+check Transparent 1.5% fee
+Customers
+check Safe online payments
+check Objective dispute resolution
+check Guaranteed refunds for non-delivery
+Developers
+code Clean /api/v1 architecture
+code JWT auth &amp; Webhooks
+code Fully functional sandbox
+The Proof is in the Protocol
+1.5%
+Flat transaction fee (capped)
+₦1,000
+Minimum transaction size
+24h
+Auto-cancel for unfunded escrows
+ac_unit
+Disputes freeze payouts immediately
+policy
+NDPR compliant data handling
+99.9%
+Platform uptime
+Simple, Transparent Pricing
+Example Calculation
+Product Value
+₦100,000
+Assurra Fee (1.5%)
+₦1,500
+Total Payout
+₦98,500
+View Full Pricing
+Let Assurra hold the money while you focus on the deal.
+For Customers
+For Merchants
+For Developers
