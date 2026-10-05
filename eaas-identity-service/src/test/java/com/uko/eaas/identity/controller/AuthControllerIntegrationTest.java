@@ -1,8 +1,7 @@
 package com.uko.eaas.identity.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.uko.eaas.identity.dto.RegisterRequest;
-import com.uko.eaas.identity.model.enums.UserRole;
+import com.uko.eaas.identity.dto.CustomerRegisterRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -10,7 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
 class AuthControllerIntegrationTest extends BaseIntegrationTest {
@@ -23,40 +23,26 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void register_Success() throws Exception {
-        // Given
-        RegisterRequest request = new RegisterRequest();
-        request.setEmail("test-integration@example.com");
-        request.setPassword("TestPassword123!");
-        request.setFullName("Integration Test User");
-        request.setPhone("+2348012345678");
-        request.setRole(UserRole.CUSTOMER);
+        CustomerRegisterRequest request = customer("test-integration@example.com", "Integration Test User");
 
-        // When & Then
-        mockMvc.perform(post("/api/v1/auth/register")
+        mockMvc.perform(post("/api/v1/auth/register/customer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.accessToken").exists())
-                .andExpect(jsonPath("$.data.user.email").value(request.getEmail()));
+                .andExpect(jsonPath("$.data.email").value(request.getEmail()));
     }
 
     @Test
     void register_EmailAlreadyExists() throws Exception {
-        // First registration
-        RegisterRequest request = new RegisterRequest();
-        request.setEmail("duplicate@example.com");
-        request.setPassword("TestPassword123!");
-        request.setFullName("Duplicate User");
-        request.setRole(UserRole.CUSTOMER);
+        CustomerRegisterRequest request = customer("duplicate@example.com", "Duplicate User");
 
-        mockMvc.perform(post("/api/v1/auth/register")
+        mockMvc.perform(post("/api/v1/auth/register/customer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
 
-        // Second registration with same email
-        mockMvc.perform(post("/api/v1/auth/register")
+        mockMvc.perform(post("/api/v1/auth/register/customer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict());
@@ -64,19 +50,13 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void login_Success() throws Exception {
-        // First register a user
-        RegisterRequest registerRequest = new RegisterRequest();
-        registerRequest.setEmail("login-test@example.com");
-        registerRequest.setPassword("TestPassword123!");
-        registerRequest.setFullName("Login Test User");
-        registerRequest.setRole(UserRole.CUSTOMER);
+        CustomerRegisterRequest registerRequest = customer("login-test@example.com", "Login Test User");
 
-        mockMvc.perform(post("/api/v1/auth/register")
+        mockMvc.perform(post("/api/v1/auth/register/customer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerRequest)))
                 .andExpect(status().isCreated());
 
-        // Then login
         mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{" +
@@ -85,7 +65,8 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
                                 "}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.accessToken").exists());
+                .andExpect(jsonPath("$.data.accessToken").exists())
+                .andExpect(jsonPath("$.data.user.email").value(registerRequest.getEmail()));
     }
 
     @Test
@@ -97,5 +78,16 @@ class AuthControllerIntegrationTest extends BaseIntegrationTest {
                                 "\"password\":\"wrongpassword\"" +
                                 "}"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    private static CustomerRegisterRequest customer(String email, String fullName) {
+        CustomerRegisterRequest request = new CustomerRegisterRequest();
+        request.setEmail(email);
+        request.setPassword("TestPassword123!");
+        request.setFullName(fullName);
+        request.setPhone("+2348012345678");
+        request.setTermsAccepted(true);
+        request.setDataProcessingConsent(true);
+        return request;
     }
 }
