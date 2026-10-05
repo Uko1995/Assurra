@@ -2,6 +2,10 @@ spring:
   application:
     name: eaas-identity-service
 
+  datasource:
+    username: sa
+    password: placeholder
+
   jpa:
     hibernate:
       ddl-auto: validate
@@ -14,12 +18,24 @@ spring:
     enabled: true
     locations: classpath:db/migration
 
+  mail:
+    username: test
+    password: test
+
 jwt:
   secret: test-secret-key-for-jwt-signing-that-is-at-least-256-bits-long
   expiration: 86400000
   refresh-expiration: 604800000
 
+encryption:
+  master-key: 00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff
+
+cloudinary:
+  cloud-name: test
+  api-key: test
+  api-secret: test
+
 logging:
   level:
-    org.springframework.test: DEBUG
-    com.uko.eaas.identity: DEBUG
+    org.springframework.test: INFO
+    com.uko.eaas.identity: INFO
