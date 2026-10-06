@@ -34,7 +34,12 @@ public class GatewayConfig {
                 // caught by identity-service-admin below.
                 // ============================================================
                 .route("escrow-service-admin", r -> r
-                        .path("/api/v1/admin/fee-configurations/**")
+                        .path(
+                                "/api/v1/admin/escrows",
+                                "/api/v1/admin/escrows/**",
+                                "/api/v1/admin/fee-configurations",
+                                "/api/v1/admin/fee-configurations/**"
+                        )
                         .filters(f -> f
                                 .filter(unifiedAuthFilter.apply(new UnifiedAuthFilter.Config()))
                                 .requestRateLimiter(config -> config
@@ -84,7 +89,7 @@ public class GatewayConfig {
                 // ESCROW SERVICE - Core Business Logic (Auth Required)
                 // ============================================================
                 .route("escrow-service", r -> r
-                        .path("/api/v1/escrow/**")
+                        .path("/api/v1/escrow", "/api/v1/escrow/**")
                         .filters(f -> f
                                 .filter(unifiedAuthFilter.apply(new UnifiedAuthFilter.Config()))
                                 .requestRateLimiter(config -> config
@@ -101,8 +106,30 @@ public class GatewayConfig {
                 // ============================================================
                 // PAYMENT SERVICE - Payment Operations (Auth Required)
                 // ============================================================
+                .route("payment-service-admin", r -> r
+                        .path(
+                                "/api/v1/admin/payments",
+                                "/api/v1/admin/payments/**",
+                                "/api/v1/admin/payouts",
+                                "/api/v1/admin/payouts/**",
+                                "/api/v1/admin/aml-alerts",
+                                "/api/v1/admin/aml-alerts/**"
+                        )
+                        .filters(f -> f
+                                .filter(unifiedAuthFilter.apply(new UnifiedAuthFilter.Config()))
+                                .requestRateLimiter(config -> config
+                                        .setRateLimiter(redisRateLimiter)
+                                        .setKeyResolver(new RateLimitConfig().userKeyResolver())
+                                        .setStatusCode(HttpStatus.TOO_MANY_REQUESTS))
+                                .retry(retryConfig -> retryConfig.setRetries(2))
+                                .circuitBreaker(config -> config
+                                        .setName("paymentCircuitBreaker")
+                                        .setFallbackUri("forward:/fallback/payment"))
+                                .stripPrefix(0))
+                        .uri("http://localhost:8083"))
+
                 .route("payment-service", r -> r
-                        .path("/api/v1/payments/**", "/api/v1/payouts/**")
+                        .path("/api/v1/payments", "/api/v1/payments/**", "/api/v1/payouts", "/api/v1/payouts/**")
                         .filters(f -> f
                                 .filter(unifiedAuthFilter.apply(new UnifiedAuthFilter.Config()))
                                 .requestRateLimiter(config -> config
@@ -132,7 +159,14 @@ public class GatewayConfig {
                 // COMMUNICATION SERVICE - Notifications & Disputes (Auth Required)
                 // ============================================================
                 .route("communication-service", r -> r
-                        .path("/api/v1/notifications/**", "/api/v1/disputes/**", "/api/v1/admin/disputes/**")
+                        .path(
+                                "/api/v1/notifications",
+                                "/api/v1/notifications/**",
+                                "/api/v1/disputes",
+                                "/api/v1/disputes/**",
+                                "/api/v1/admin/disputes",
+                                "/api/v1/admin/disputes/**"
+                        )
                         .filters(f -> f
                                 .filter(unifiedAuthFilter.apply(new UnifiedAuthFilter.Config()))
                                 .requestRateLimiter(config -> config
