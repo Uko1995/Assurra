@@ -15,9 +15,7 @@ One Next.js App Router app in `client/`. Marketing pages are server components a
 
 Next.js 15.2.4 (App Router, `next dev --turbopack`), React 19, TypeScript 5 (`strict`, paths `@/*` → `./src/*`), Tailwind v4 via `@tailwindcss/postcss`, TanStack Query 5.62, Zustand 5, `@fontsource` 5.2.5, ESLint 9 with `eslint-config-next`.
 
-Tailwind v4 has no `tailwind.config`. Tokens live in `@theme` inside `src/app/globals.css`: canvas `#f3fcf0`, ink `#151d16`, muted `#3f4a3d`, line `#becab9`, card `#ffffff`, primary `#00681d`, primary-deep `#005316`, primary-soft `#e2ffdb`, danger `#ba1a1a`, plus `--font-sans` and `--font-display`.
-
-Fonts are `@fontsource/plus-jakarta-sans` and `@fontsource/playfair-display`, imported as CSS in `src/app/layout.tsx`. Do not use `next/font/google`: it fails to fetch in this environment and breaks `next build`.
+Tailwind v4 has no `tailwind.config`. Tokens live in `@theme` inside `src/app/globals.css`: canvas `#fbfaf7`, surface `#ffffff`, ink `#191b17`, muted `#4e514a`, faint `#6e716a`, line `#e7e4db`, primary `#00681d`, primary-deep `#005316`, primary-tint `#ebf4ec`, panel `#171a16`, plus status tints. Font is Inter Variable via `@fontsource-variable/inter` in `src/app/layout.tsx`. Do not use `next/font/google`.
 
 Do not add Orval, nginx, Motion, or Luxon. `Eaas/openapi.yaml` is stale; type from the controllers you call, in `src/lib/types.ts`.
 

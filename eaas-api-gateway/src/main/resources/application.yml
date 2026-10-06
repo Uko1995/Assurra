@@ -182,36 +182,10 @@ spring:
   cloud:
     gateway:
       routes:
-        - id: identity-service-admin
-          uri: http://eaas-identity-service:8081
-          predicates:
-            - Path=/api/v1/merchants/**, /api/v1/admin/kyc/**, /api/v1/admin/**
-          filters:
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 10
-                redis-rate-limiter.burstCapacity: 150
-                key-resolver: "#{@userKeyResolver}"
-            - name: CircuitBreaker
-              args:
-                name: identityCircuitBreaker
-                fallbackUri: forward:/fallback/identity
-        
-        - id: identity-service-public
-          uri: http://eaas-identity-service:8081
-          predicates:
-            - Path=/api/v1/auth/**, /api/v1/health
-          filters:
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 2
-                redis-rate-limiter.burstCapacity: 30
-                key-resolver: "#{@ipKeyResolver}"
-        
-        - id: escrow-service
+        - id: admin-escrow
           uri: http://eaas-escrow-service:8082
           predicates:
-            - Path=/api/v1/escrow/**
+            - Path=/api/v1/admin/escrows,/api/v1/admin/escrows/**,/api/v1/admin/fee-configurations,/api/v1/admin/fee-configurations/**
           filters:
             - name: RequestRateLimiter
               args:
@@ -222,11 +196,11 @@ spring:
               args:
                 name: escrowCircuitBreaker
                 fallbackUri: forward:/fallback/escrow
-        
-        - id: payment-service
+
+        - id: admin-payment
           uri: http://eaas-payment-service:8083
           predicates:
-            - Path=/api/v1/payments/**, /api/v1/payouts/**
+            - Path=/api/v1/admin/payments,/api/v1/admin/payments/**,/api/v1/admin/payouts,/api/v1/admin/payouts/**,/api/v1/admin/aml-alerts,/api/v1/admin/aml-alerts/**
           filters:
             - name: RequestRateLimiter
               args:
@@ -237,22 +211,11 @@ spring:
               args:
                 name: paymentCircuitBreaker
                 fallbackUri: forward:/fallback/payment
-        
-        - id: payment-webhooks
-          uri: http://eaas-payment-service:8083
-          predicates:
-            - Path=/api/v1/webhooks/**
-          filters:
-            - name: RequestRateLimiter
-              args:
-                redis-rate-limiter.replenishRate: 2
-                redis-rate-limiter.burstCapacity: 30
-                key-resolver: "#{@ipKeyResolver}"
-        
-        - id: communication-service
+
+        - id: admin-disputes
           uri: http://eaas-communication-service:8084
           predicates:
-            - Path=/api/v1/notifications/**, /api/v1/disputes/**, /api/v1/admin/disputes/**
+            - Path=/api/v1/admin/disputes,/api/v1/admin/disputes/**
           filters:
             - name: RequestRateLimiter
               args:
@@ -263,13 +226,94 @@ spring:
               args:
                 name: communicationCircuitBreaker
                 fallbackUri: forward:/fallback/communication
-  
+
+        - id: identity-service-admin
+          uri: http://eaas-identity-service:8081
+          predicates:
+            - Path=/api/v1/merchants/**, /api/v1/admin/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 150
+                key-resolver: "#{@userKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: identityCircuitBreaker
+                fallbackUri: forward:/fallback/identity
+
+        - id: identity-service-public
+          uri: http://eaas-identity-service:8081
+          predicates:
+            - Path=/api/v1/auth/**, /api/v1/health
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 2
+                redis-rate-limiter.burstCapacity: 30
+                key-resolver: "#{@ipKeyResolver}"
+
+        - id: escrow-service
+          uri: http://eaas-escrow-service:8082
+          predicates:
+            - Path=/api/v1/escrow,/api/v1/escrow/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 150
+                key-resolver: "#{@userKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: escrowCircuitBreaker
+                fallbackUri: forward:/fallback/escrow
+
+        - id: payment-service
+          uri: http://eaas-payment-service:8083
+          predicates:
+            - Path=/api/v1/payments,/api/v1/payments/**,/api/v1/payouts,/api/v1/payouts/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 150
+                key-resolver: "#{@userKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: paymentCircuitBreaker
+                fallbackUri: forward:/fallback/payment
+
+        - id: payment-webhooks
+          uri: http://eaas-payment-service:8083
+          predicates:
+            - Path=/api/v1/webhooks/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 2
+                redis-rate-limiter.burstCapacity: 30
+                key-resolver: "#{@ipKeyResolver}"
+
+        - id: communication-service
+          uri: http://eaas-communication-service:8084
+          predicates:
+            - Path=/api/v1/notifications,/api/v1/notifications/**,/api/v1/disputes,/api/v1/disputes/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 150
+                key-resolver: "#{@userKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: communicationCircuitBreaker
+                fallbackUri: forward:/fallback/communication
+
   data:
     redis:
       host: redis
       port: 6379
 
-# Logging for Docker
 logging:
   level:
     com.uko.eaas.gateway: INFO
@@ -277,3 +321,140 @@ logging:
     reactor.netty: WARN
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+---
+# Local profile — same route order, services on localhost
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  cloud:
+    gateway:
+      routes:
+        - id: admin-escrow
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/v1/admin/escrows,/api/v1/admin/escrows/**,/api/v1/admin/fee-configurations,/api/v1/admin/fee-configurations/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 150
+                key-resolver: "#{@userKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: escrowCircuitBreaker
+                fallbackUri: forward:/fallback/escrow
+
+        - id: admin-payment
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/v1/admin/payments,/api/v1/admin/payments/**,/api/v1/admin/payouts,/api/v1/admin/payouts/**,/api/v1/admin/aml-alerts,/api/v1/admin/aml-alerts/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 150
+                key-resolver: "#{@userKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: paymentCircuitBreaker
+                fallbackUri: forward:/fallback/payment
+
+        - id: admin-disputes
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/v1/admin/disputes,/api/v1/admin/disputes/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 150
+                key-resolver: "#{@userKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: communicationCircuitBreaker
+                fallbackUri: forward:/fallback/communication
+
+        - id: identity-service-admin
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/v1/merchants/**, /api/v1/admin/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 150
+                key-resolver: "#{@userKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: identityCircuitBreaker
+                fallbackUri: forward:/fallback/identity
+
+        - id: identity-service-public
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/v1/auth/**, /api/v1/health
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 2
+                redis-rate-limiter.burstCapacity: 30
+                key-resolver: "#{@ipKeyResolver}"
+
+        - id: escrow-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/v1/escrow,/api/v1/escrow/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 150
+                key-resolver: "#{@userKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: escrowCircuitBreaker
+                fallbackUri: forward:/fallback/escrow
+
+        - id: payment-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/v1/payments,/api/v1/payments/**,/api/v1/payouts,/api/v1/payouts/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 150
+                key-resolver: "#{@userKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: paymentCircuitBreaker
+                fallbackUri: forward:/fallback/payment
+
+        - id: payment-webhooks
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/v1/webhooks/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 2
+                redis-rate-limiter.burstCapacity: 30
+                key-resolver: "#{@ipKeyResolver}"
+
+        - id: communication-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/v1/notifications,/api/v1/notifications/**,/api/v1/disputes,/api/v1/disputes/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 150
+                key-resolver: "#{@userKeyResolver}"
+            - name: CircuitBreaker
+              args:
+                name: communicationCircuitBreaker
+                fallbackUri: forward:/fallback/communication

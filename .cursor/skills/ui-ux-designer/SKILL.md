@@ -16,26 +16,33 @@ Design Assurra as a payment record, not a blog and not a shop. One screen has on
 
 Tailwind v4 with tokens in `@theme` in `src/app/globals.css`. No `tailwind.config`, so a new token is a new CSS variable there.
 
+Tokens live in `src/app/globals.css`. Green is the only brand colour. Everything else is a warm paper system, closer to Wise/Stripe than to a mint wash.
+
 | Token | Value | Use |
 |---|---|---|
-| canvas | `#f3fcf0` | Page background |
-| card | `#ffffff` | Surfaces |
-| ink | `#151d16` | Text, and the dark proof panel |
-| muted | `#3f4a3d` | Secondary text |
-| line | `#becab9` | Borders and grid gaps |
-| primary | `#00681d` | Primary action, done states |
+| canvas | `#fbfaf7` | Page background |
+| surface | `#ffffff` | Cards, sidebar |
+| subtle | `#f4f3ee` | Hover, inset fee boxes |
+| line | `#e7e4db` | Dividers |
+| line-strong | `#d4cfc3` | Input borders |
+| ink | `#191b17` | Text |
+| muted | `#4e514a` | Body secondary |
+| faint | `#6e716a` | Meta, placeholders |
+| primary | `#00681d` | Primary action, done step |
 | primary-deep | `#005316` | Primary hover |
-| primary-soft | `#e2ffdb` | Active nav, status pill |
-| danger | `#ba1a1a` | Dispute, destructive, errors |
+| primary-tint | `#ebf4ec` | Active nav |
+| panel | `#171a16` | Dark proof / CTA band |
+| mint | `#7fe08a` | Positive mark on panel only |
+| success / info / warn / danger | see CSS | Status chips only |
 
-On ink panels use white text, `text-white/70` for labels, and `#75dd78` for a positive mark. Type: Playfair Display is the `.hero-title` class on the marketing home only; every other heading is Plus Jakarta Sans at `font-semibold tracking-tight`. Sizes stay 14px UI, 16px body, 20px section title, 40–56px hero. One radius, `rounded-2xl`. Buttons are the shared `btnPrimary` and `btnGhost` pills.
+Type is Inter Variable (`@fontsource-variable/inter`). No serif. Display uses `.hero-title` (40–56px, tracking -0.035em). Money uses `.num` (tabular lining figures). Radii: field 10px, card 14px, panel 20px. Buttons are `rounded-field`, not pills. Depth is `shadow-card` plus `border-line`, not stacked drop shadows.
 
-No illustration set, no partner logo wall, no gradients, no shadow stacking. Depth comes from the ink panel and from `border-line`.
+No illustration set, no partner logo wall, no gradient mesh. Green appears on one primary action per band, on the done step, and on the wordmark mark.
 
 ## Composition rules
 
 - Pair a light promise with a dark record. Never set a white card beside white cards as the hero.
-- Group a set in one divided grid (`bg-line` wrapper, `bg-card` cells), not four floating cards. Order uses: goods, services, timeline stages, large and government work.
+- Group a set in one divided grid (`bg-line` wrapper, `bg-surface` cells), not four floating cards. Order uses: goods, services, timeline stages, large and government work.
 - Dashboards use `DashboardShell`: side nav on desktop, horizontal scroll under `md`, page title in the header bar rather than a large heading in the body.
 - A deal page is a timeline in the main column and one "Next action" card in a narrow right column. Secondary actions sit under the primary one; the dispute form stays collapsed behind "Report a problem".
 - Role homes are queues from `EscrowQueues`: Needs you, In progress, Closed. Each row shows the description, the status sentence, the amount, and the action verb. The reference is small, uppercase, and last.
